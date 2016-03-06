@@ -1,5 +1,5 @@
 /******************************************************************************
- *  Copyright (C) 2016 by Dominik Schreiber <mail@dominikschreiber.de>        *
+ *  Copyright (C) 2016 by Dominik Schreiber <dev@dominikschreiber.de>         *
  *                                                                            *
  *  This library is free software; you can redistribute it and/or modify      *
  *  it under the terms of the GNU General Public License as published         *
@@ -12,7 +12,7 @@
  *  Library General Public License for more details.                          *
  *                                                                            *
  *  You should have received a copy of the GNU General Public License         *
- *  along with this library; see the file COPYING.LIB.                        *
+ *  along with this library; see the file LICENSE.                            *
  *  If not, see <http://www.gnu.org/licenses/>.                               *
  *****************************************************************************/
 
