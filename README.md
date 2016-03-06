@@ -19,17 +19,7 @@ If you are interested in the project, have any recommendations or suggestions, f
 
 ## Installation
 
-You can execute the following commands (which are also described in the `INSTALL` file) in order to install the plugin. However, please note that this is in an early stage of development, which is why you have to copy the config file yourself (see 3rd last line).
-```
-mkdir build
-cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=`kf5-config --prefix` -DQT_PLUGIN_INSTALL_DIR=`kf5-config --qt-plugins`
-make 
-sudo make install
-cp ../krunner-symbols ~/.config/krunner-symbols
-kquitapp krunner
-krunner
-```
+You can execute the install script (inside the `krunner-symbols` directory, execute the command `bash install.sh`) in order to install the plugin. However, please note that this is in an early stage of development, and errors might occur depending on your setup. In case of doubt, rather manually execute the single commands inside the script and watch the output.
 
 ## Configuration
 
