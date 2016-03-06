@@ -60,7 +60,7 @@ Symbols::Symbols(QObject *parent, const QVariantList &args)
     // Read the standard config file
     readFile(home + "/.config/krunner-symbols");
     // If possible, read the additional, overriding user config file
-    readFile(home + "/.config/krunner-symbols-user");
+    readFile(home + "/.config/krunner-symbols-custom");
 }
 
 Symbols::~Symbols()
