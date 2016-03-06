@@ -23,6 +23,7 @@
 #include <QClipboard>
 #include <iostream>
 #include <fstream>
+#include <regex>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -46,7 +47,7 @@ Symbols::Symbols(QObject *parent, const QVariantList &args)
     setDefaultSyntax(
         Plasma::RunnerSyntax(
             QString::fromLatin1(":q:"),
-            i18n("Sucht nach einem Unicode-Symbol der Beschreibung :q: und zeigt es, falls vorhanden, an.")
+            i18n("Looks for a unicode symbol described by :q: and, if present, displays it. Then pressing ENTER copies the symbol to the clipboard.")
         )
     );
     
@@ -63,8 +64,12 @@ Symbols::Symbols(QObject *parent, const QVariantList &args)
     {
         while ( getline (file,line) )
         {
-            int index = line.find("=", 0);
-            symbols[line.substr(0, index)] = line.substr(index + 1);
+            // skip commentaries
+            if (!std::regex_match (line, std::regex("(\s*)(#)(.*)")) && std::regex_match (line, std::regex("(.*)(=)(.*)")))
+            {
+                int index = line.find("=", 0);
+                symbols[line.substr(0, index)] = line.substr(index + 1);
+            }
         }
         file.close();
     }

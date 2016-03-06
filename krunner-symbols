@@ -1,3 +1,4 @@
+# Greek Letters
 Alpha=Α
 alpha=α
 Beta=Β
@@ -46,20 +47,29 @@ Psi=Ψ
 psi=ψ
 Omega=Ω
 omega=ω
+
+# Arrows
 arrowleft=←
 arrowright=→
 arrowup=↑
 arrowdown=↓
 mapsto=↦
+
+# Mathematical Sets
 naturalnumbers=ℕ
 wholenumbers=ℤ
 integers=ℤ
 rationalnumbers=ℚ
 realnumbers=ℝ
+emptyset=∅
+
+# Mathematical Operators
 plusminus=±
 squareroot=√
 sum=∑
 product=∏
+
+# Mathematical Relations
 muchlessthan=≪
 lowerequals=≤
 muchgreaterthan=≫
@@ -69,7 +79,8 @@ almostequal=≈
 almostequals=≈
 equalsalmost=≈
 identical=≡
-emptyset=∅
+
+# Set Relations and Operators
 elementof=∈
 in=∈
 notelementof=∉
@@ -77,20 +88,24 @@ notin=∉
 subsetequals=⊆
 subset=⊂
 strictsubset=⊊
-triangle=∆
-nabla=∇
-partialdifferential=∂
-infinity=∞
+intersection=∩
+union=∪
+
+# Logical Operators and Symbols
 not=¬
 and=∧
 or=∨
 xor=⊻
 nand=⊼
 nor=⊽
-intersection=∩
-union=∪
 exists=∃
 existsnot=∄
 forall=∀
+
+# Other
+triangle=∆
+nabla=∇
+partialdifferential=∂
+infinity=∞
 integral=∫
 bullet=∙
