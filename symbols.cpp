@@ -37,6 +37,7 @@ Symbols::Symbols(QObject *parent, const QVariantList &args)
 {
     Q_UNUSED(args);
     
+    // General runner configuration
     setObjectName(QLatin1String("Symbols"));
     setHasRunOptions(true);
     setIgnoredTypes(Plasma::RunnerContext::Directory |
@@ -51,6 +52,7 @@ Symbols::Symbols(QObject *parent, const QVariantList &args)
         )
     );
     
+    // Get the user's home directory
     const char* homedir;
     if ((homedir = getenv("HOME")) == NULL) {
         homedir = getpwuid(getuid())->pw_dir;
@@ -59,7 +61,7 @@ Symbols::Symbols(QObject *parent, const QVariantList &args)
     
     // Read the standard config file
     readFile(home + "/.config/krunner-symbols");
-    // If possible, read the additional, overriding user config file
+    // If present, read the additional, overriding user config file
     readFile(home + "/.config/krunner-symbols-custom");
 }
 
@@ -75,14 +77,19 @@ void Symbols::readFile(string filepath)
     {
         while ( getline (file,line) )
         {
-            // skip commentaries
-            if (!std::regex_match (line, std::regex("(\s*)(#)(.*)")) && std::regex_match (line, std::regex("(.*)(=)(.*)")))
+            // skip commentaries (lines beginning with # apart from whitespace)
+            if (!std::regex_match (line, std::regex("(\s*)(#)(.*)")))
             {
-                int index = line.find("=", 0);
-                string key = line.substr(0, index);
-                string value = line.substr(index + 1);
-                symbols[key] = value;
-                keylist.push_back(key);
+                // only use lines containing an "equals" sign
+                // with at least a character before and after
+                if (std::regex_match (line, std::regex("(.*)(.)(=)(.)(.*)")))
+                {
+                    int index = line.find("=", 0);
+                    string key = line.substr(0, index);
+                    string value = line.substr(index + 1);
+                    symbols[key] = value;
+                    keylist.push_back(key);
+                }
             }
         }
         file.close();
@@ -94,32 +101,45 @@ void Symbols::match(Plasma::RunnerContext &context)
 {
     if (!context.isValid()) return;
     
+    // Convert query to std::string
     const QString term = context.query();
     string enteredKey = term.toStdString();
     
+    // Add matches for every keyword that equals the query
+    // or that the query could be completed to
     QList<Plasma::QueryMatch> matches;
     for (int i = 0; i < keylist.size(); i++)
     {
         const string key = keylist[i];
+        
+        // The query must not be longer than the keyword;
+        // The query must be a prefix of the keyword
         if (key.length() >= enteredKey.length() && key.substr(0, enteredKey.length()).compare(enteredKey) == 0)
         {
+            // We have a match
             Plasma::QueryMatch match(this);
+            
             if (key.length() == enteredKey.length())
+                // the query equals the keyword -> exact match
                 match.setType(Plasma::QueryMatch::ExactMatch);
             else
+                // the query is a (non-complete) prefix of the keyword -> completion match
                 match.setType(Plasma::QueryMatch::CompletionMatch);
+            
+            // Basic properties for the match
             match.setIcon(QIcon::fromTheme("preferences-desktop-font"));
-            string symbol = symbols[key];
-            match.setText(QString::fromStdString(symbol));
-            match.setRelevance(1 - ((float) enteredKey.length() / (float) key.length()));
+            string result = symbols[key];
+            match.setText(QString::fromStdString(result));
+            
+            // The match's relevance gets higher the more "complete" the query string is
+            // (k/x for query length k and keyword length x; 1 for complete keyword)
+            match.setRelevance((float) enteredKey.length() / (float) key.length());
+            
             matches.append(match);
         }
     }
     
-    sort(matches.begin(), matches.end(), [](const Plasma::QueryMatch & a, const Plasma::QueryMatch & b) -> bool { 
-        return a.relevance() < b.relevance(); 
-    });
-    
+    // Feed the framework with the calculated results
     context.addMatches(matches);
 }
 
