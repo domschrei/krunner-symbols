@@ -1,3 +1,0 @@
-/home/dominik/workspace/krunner-symbols/krunner-symbols/build/CMakeFiles/krunner_symbols_automoc.dir
-/home/dominik/workspace/krunner-symbols/krunner-symbols/build/CMakeFiles/krunner_symbols.dir
-/home/dominik/workspace/krunner-symbols/krunner-symbols/build/CMakeFiles/uninstall.dir
