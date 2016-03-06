@@ -85,7 +85,7 @@ void Symbols::match(Plasma::RunnerContext &context)
         QList<Plasma::QueryMatch> matches;
         Plasma::QueryMatch match(this);
         match.setType(Plasma::QueryMatch::InformationalMatch);
-        match.setIcon(QIcon::fromTheme("applications-education-language"));
+        match.setIcon(QIcon::fromTheme("preferences-desktop-font"));
         string symbol = symbols[term.toStdString()];
         match.setText(QString::fromStdString(symbol));
         match.setRelevance(1);
