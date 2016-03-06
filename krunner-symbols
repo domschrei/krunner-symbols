@@ -53,7 +53,10 @@ arrowleft=←
 arrowright=→
 arrowup=↑
 arrowdown=↓
+arrowrightstroke=↛
 mapsto=↦
+arrowzigzag=↯
+arrowleftright=↔
 
 # Mathematical Sets
 naturalnumbers=ℕ
@@ -68,6 +71,8 @@ plusminus=±
 squareroot=√
 sum=∑
 product=∏
+integral=∫
+partialdifferential=∂
 
 # Mathematical Relations
 muchlessthan=≪
@@ -98,14 +103,35 @@ or=∨
 xor=⊻
 nand=⊼
 nor=⊽
+implies=⇒
+implication=⇒
+iff=⇔
 exists=∃
 existsnot=∄
 forall=∀
 
-# Other
+# Other Mathematical Symbols
 triangle=∆
 nabla=∇
-partialdifferential=∂
 infinity=∞
-integral=∫
+
+# General Symbols
 bullet=∙
+square=⏹
+checkmark=✓
+ballot=✗
+hourglass=⏳
+heart=♥
+
+# Official Symbols
+trademark=™
+copyright=©
+regtrademark=®
+pound=£
+euro=€
+yen=¥
+
+# Dank Memes
+tableflip=(╯°□°）╯︵ ┻━┻
+raiseyourdongers=ヽ༼ຈل͜ຈ༽ﾉ
+takemyenergy=༼ つ ◕_◕ ༽つ⚡
