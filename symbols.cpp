@@ -52,14 +52,25 @@ Symbols::Symbols(QObject *parent, const QVariantList &args)
     );
     
     const char* homedir;
-
     if ((homedir = getenv("HOME")) == NULL) {
         homedir = getpwuid(getuid())->pw_dir;
     }
     string home = homedir;
     
+    // Read the standard config file
+    readFile(home + "/.config/krunner-symbols");
+    // If possible, read the additional, overriding user config file
+    readFile(home + "/.config/krunner-symbols-user");
+}
+
+Symbols::~Symbols()
+{
+}
+
+void Symbols::readFile(string filepath)
+{
     string line;
-    ifstream file (home + "/.config/krunner-symbols");
+    ifstream file (filepath);
     if (file.is_open())
     {
         while ( getline (file,line) )
@@ -73,11 +84,7 @@ Symbols::Symbols(QObject *parent, const QVariantList &args)
         }
         file.close();
     }
-    else cout << "Unable to open file";
-}
-
-Symbols::~Symbols()
-{
+    else cout << "Unable to open file " + filepath + ".";
 }
 
 void Symbols::match(Plasma::RunnerContext &context)

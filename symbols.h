@@ -34,6 +34,7 @@ public:
     
 private:
     std::map<std::string,std::string> symbols;
+    void readFile(std::string filepath);
 };
 
 #endif
