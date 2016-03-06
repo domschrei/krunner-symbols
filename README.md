@@ -1,6 +1,6 @@
 # krunner-symbols
 
-A little krunner plugin to retrieve unicode symbols (or any other string) based on a corresponding keyword.
+A little krunner plugin (Plasma 5) to retrieve unicode symbols, or any other string, based on a corresponding keyword.
 
 ![Demonstration](https://raw.githubusercontent.com/domschrei/krunner-symbols/master/demonstration1.png)
 
@@ -11,7 +11,11 @@ E.g. you can type `lambda` and krunner will yield the proper unicode symbol λ. 
 
 Which keywords and symbols are supported depends on an open-ended text file (see *Configuration*).
 
-If you are interested in the project, have any recommendations or suggestions, feel free to contact me or post an issue. As I did not have any experience with Plasma development before, I am happy to hear about how I can improve the code.
+## Why?
+
+krunner is a great tool because it's always accessible, very fast, and really unintrusive, as it temporarily gets focused when called, but then returns the focus to the previously focused view when finished. Because of this, a quick krunner query can be perfectly integrated into a user's workflow, adding efficiency and convenience. This little tool is meant to support this idea of usage.
+
+If you are interested in the project, have any recommendations or suggestions, feel free to contact me or post an issue. As I did not have any experience with Plasma development before, I am happy to hear about how I can improve the code and/or the build process.
 
 ## Installation
 
@@ -29,7 +33,7 @@ krunner
 
 ## Configuration
 
-Instead of editing the primary source `~/.config/krunner-symbols`, you can create a second file `~/.config/krunner-symbols-custom` where you can change and/or extend the recognized symbols without changing the original ones. That way, if you update or reinstall this plugin, you won't lose your custom definitions. Keep in mind that you will have to restart krunner (`kquitapp krunner && krunner`) for configuration changes to take effect.
+Instead of editing the primary source `~/.config/krunner-symbols`, you can create a second file `~/.config/krunner-symbols-custom` where you can redefine existing definitions or create new ones, thus configuring the recognized symbols without changing the original file. That way, if you update or reinstall this plugin, you won't lose your custom definitions. Keep in mind that you will have to restart krunner (`kquitapp krunner && krunner`) for configuration changes to take effect.
 
 The syntax is easy. Just create lines like this:
 ```
