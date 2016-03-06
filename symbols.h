@@ -34,6 +34,8 @@ public:
     
 private:
     std::map<std::string,std::string> symbols;
+    std::vector<std::string> keylist;
+    int maxKeyLength;
     void readFile(std::string filepath);
 };
 

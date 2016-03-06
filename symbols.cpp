@@ -79,7 +79,10 @@ void Symbols::readFile(string filepath)
             if (!std::regex_match (line, std::regex("(\s*)(#)(.*)")) && std::regex_match (line, std::regex("(.*)(=)(.*)")))
             {
                 int index = line.find("=", 0);
-                symbols[line.substr(0, index)] = line.substr(index + 1);
+                string key = line.substr(0, index);
+                string value = line.substr(index + 1);
+                symbols[key] = value;
+                keylist.push_back(key);
             }
         }
         file.close();
@@ -89,22 +92,35 @@ void Symbols::readFile(string filepath)
 
 void Symbols::match(Plasma::RunnerContext &context)
 {
-    const QString term = context.query();    
     if (!context.isValid()) return;
     
-    if (symbols.count(term.toStdString()) == 1)
+    const QString term = context.query();
+    string enteredKey = term.toStdString();
+    
+    QList<Plasma::QueryMatch> matches;
+    for (int i = 0; i < keylist.size(); i++)
     {
-        QList<Plasma::QueryMatch> matches;
-        Plasma::QueryMatch match(this);
-        match.setType(Plasma::QueryMatch::InformationalMatch);
-        match.setIcon(QIcon::fromTheme("preferences-desktop-font"));
-        string symbol = symbols[term.toStdString()];
-        match.setText(QString::fromStdString(symbol));
-        match.setRelevance(1);
-        matches.append(match);
-        
-        context.addMatches(matches);
+        const string key = keylist[i];
+        if (key.length() >= enteredKey.length() && key.substr(0, enteredKey.length()).compare(enteredKey) == 0)
+        {
+            Plasma::QueryMatch match(this);
+            if (key.length() == enteredKey.length())
+                match.setType(Plasma::QueryMatch::ExactMatch);
+            else
+                match.setType(Plasma::QueryMatch::CompletionMatch);
+            match.setIcon(QIcon::fromTheme("preferences-desktop-font"));
+            string symbol = symbols[key];
+            match.setText(QString::fromStdString(symbol));
+            match.setRelevance(1 - ((float) enteredKey.length() / (float) key.length()));
+            matches.append(match);
+        }
     }
+    
+    sort(matches.begin(), matches.end(), [](const Plasma::QueryMatch & a, const Plasma::QueryMatch & b) -> bool { 
+        return a.relevance() < b.relevance(); 
+    });
+    
+    context.addMatches(matches);
 }
 
 void Symbols::run(const Plasma::RunnerContext &context, const Plasma::QueryMatch &match)
