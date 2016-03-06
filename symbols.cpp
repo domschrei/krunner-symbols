@@ -25,6 +25,10 @@
 #include <fstream>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>
+
 using namespace std;
 
 Symbols::Symbols(QObject *parent, const QVariantList &args)
@@ -46,8 +50,15 @@ Symbols::Symbols(QObject *parent, const QVariantList &args)
         )
     );
     
+    const char* homedir;
+
+    if ((homedir = getenv("HOME")) == NULL) {
+        homedir = getpwuid(getuid())->pw_dir;
+    }
+    string home = homedir;
+    
     string line;
-    ifstream file ("/home/dominik/workspace/krunner-symbols/symbols.conf");
+    ifstream file (home + "/.config/krunner-symbols");
     if (file.is_open())
     {
         while ( getline (file,line) )

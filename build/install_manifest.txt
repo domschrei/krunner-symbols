@@ -1,0 +1,2 @@
+/usr/lib/qt/plugins/krunner_symbols.so
+/usr/share/kservices5/plasma-runner-symbols.desktop
