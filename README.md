@@ -29,12 +29,14 @@ krunner
 Instead of editing the primary source `~/.config/krunner-symbols`, you can create a second file `~/.config/krunner-symbols-custom` where you can change and/or extend the recognized symbols without changing the original ones. That way, if you update or reinstall this plugin, you won't lose your custom symbol definitions. Keep in mind that you will have to restart krunner (`kquitapp krunner && krunner`) for configuration changes to take effect.
 
 The syntax is easy. Just create lines like this:
-
-```Input=Output```
-
+```
+Input=Output
+```
 , where `Input` is what you have to type and `Output` is what you get when typing it. They can be entire sentences, or just single symbols. To insert a comment, you can do this: 
 
-```# Lalala the program can't hear me```
+```
+# Lalala the program can't hear me
+```
 
 Blank lines are okay, too.
 
