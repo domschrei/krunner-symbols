@@ -2,12 +2,12 @@
 
 A little krunner plugin (Plasma 5) to retrieve unicode symbols, or any other string, based on a corresponding keyword.
 
-![Demonstration](https://raw.githubusercontent.com/domschrei/krunner-symbols/master/demonstration1.png)
+![Demonstration](https://raw.githubusercontent.com/domschrei/krunner-symbols/master/img/demonstration1.png)
 
 E.g. you can type `lambda` and krunner will yield the proper unicode symbol λ. It can be used to quickly get a symbol when writing some text, or to retrieve often-needed texts (or links, or emotes ...) by typing a certain abbreviation.
 
-![Demonstration](https://raw.githubusercontent.com/domschrei/krunner-symbols/master/demonstration2.png)
-![Demonstration](https://raw.githubusercontent.com/domschrei/krunner-symbols/master/demonstration3.png)
+![Demonstration](https://raw.githubusercontent.com/domschrei/krunner-symbols/master/img/demonstration2.png)
+![Demonstration](https://raw.githubusercontent.com/domschrei/krunner-symbols/master/img/demonstration3.png)
 
 Which keywords and symbols are supported depends on an open-ended text file (see *Configuration*).
 
