@@ -17,7 +17,7 @@ backup=()
 options=()
 install=
 changelog=
-source=("https://raw.githubusercontent.com/domschrei/krunner-symbols/master/$pkgname-$pkgver.tar.gz")
+source=("git+https://github.com/domschrei/krunner-symbols.git")
 noextract=()
 
 prepare() {
@@ -26,19 +26,13 @@ prepare() {
 
 build() {
   cd build
-  echo "Building $pkgname ..."
-  cmake ../${pkgname}-${pkgver} -DCMAKE_INSTALL_PREFIX=`kf5-config --prefix` -DQT_PLUGIN_INSTALL_DIR=`kf5-config --qt-plugins` -DCMAKE_BUILD_TYPE=Release
+  cmake ../krunner-symbols -DCMAKE_INSTALL_PREFIX=`kf5-config --prefix` -DQT_PLUGIN_INSTALL_DIR=`kf5-config --qt-plugins` -DCMAKE_BUILD_TYPE=Release
   make
-  echo "End of $pkgname build."
 }
 
 package() {
-  echo "Installing $pkgname ..."
   cd build
-  sudo make install
-  cd ..
-  cp ../${pkgname}-${pkgver}/krunner-symbols $HOME/.config/krunner-symbols
-  echo "End of $pkgname installation."
+  make install DESTDIR="${pkgdir}"
 }
 
-md5sums=('3b63f5fcf1b680da6d41498f82ef454e')
+md5sums=('SKIP')
