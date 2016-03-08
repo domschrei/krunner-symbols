@@ -59,12 +59,11 @@ Symbols::Symbols(QObject *parent, const QVariantList &args)
     }
     string home = homedir;
     
-    readFile("/usr/share/config/krunner-symbols");
+    // Read the standard config file    
+    readFile("/usr/share/config/krunner-symbolsrc");
 
-    // Read the standard config file
-    readFile(home + "/.config/krunner-symbols");
     // If present, read the additional, overriding user config file
-    readFile(home + "/.config/krunner-symbols-custom");
+    readFile(home + "/.config/krunner-symbolsrc");
 }
 
 Symbols::~Symbols()

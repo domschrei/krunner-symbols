@@ -23,7 +23,9 @@ You can execute the install script (inside the `krunner-symbols` directory, exec
 
 ## Configuration
 
-Instead of editing the primary source `~/.config/krunner-symbols`, you can create a second file `~/.config/krunner-symbols-custom` where you can redefine existing definitions or create new ones, thus configuring the recognized symbols without changing the original file. That way, if you update or reinstall this plugin, you won't lose your custom definitions. Keep in mind that you will have to restart krunner (`kquitapp krunner && krunner`) for configuration changes to take effect.
+**TL;DR:** Look at the file `krunner-symbolsrc` and you will get the idea. Store custom stuff in `~/.config/krunner-symbolsrc`.
+
+Additional to the primary source `/usr/share/config/krunner-symbolsrc`, you can create a second file `~/.config/krunner-symbolsrc` where you can redefine existing definitions or create new ones, thus configuring the recognized symbols without changing the original file. Keep in mind that you will have to restart krunner (`kquitapp krunner && krunner`) for configuration changes to take effect.
 
 The syntax is easy. Just create lines like this:
 ```
@@ -36,8 +38,6 @@ Keyword=Output
 ```
 
 Blank lines are okay, too.
-
-TL;DR: Just look at the file `krunner-symbols` and you will get the idea.
 
 ## Usage
 
