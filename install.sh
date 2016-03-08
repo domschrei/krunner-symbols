@@ -3,6 +3,8 @@
 # Caution - This script is not guaranteed to work properly, if any complications occur. 
 # In case of doubt, execute these steps one after one and watch the output.
 
+set -e
+
 mkdir -p build
 cd build
 
