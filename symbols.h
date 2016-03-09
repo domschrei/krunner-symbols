@@ -33,10 +33,7 @@ public:
     void run(const Plasma::RunnerContext &, const Plasma::QueryMatch &);
     
 private:
-    std::map<std::string,std::string> symbols;
-    std::vector<std::string> keylist;
-    int maxKeyLength;
-    void readFile(std::string filepath);
+    QMap<QString, QString> symbols;
 };
 
 #endif

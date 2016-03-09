@@ -21,11 +21,9 @@
 #include <KLocalizedString>
 #include <QApplication>
 #include <QClipboard>
-#include <iostream>
-#include <fstream>
-#include <regex>
+#include <KConfigCore/KConfig>
+#include <KConfigCore/KConfigGroup>
 #include <stdio.h>
-#include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <pwd.h>
@@ -51,76 +49,48 @@ Symbols::Symbols(QObject *parent, const QVariantList &args)
             i18n("Looks for a unicode symbol described by :q: and, if present, displays it. Then pressing ENTER copies the symbol to the clipboard.")
         )
     );
-    
-    // Get the user's home directory
-    const char* homedir;
-    if ((homedir = getenv("HOME")) == NULL) {
-        homedir = getpwuid(getuid())->pw_dir;
-    }
-    string home = homedir;
-    
-    // Read the standard config file    
-    readFile("/usr/share/config/krunner-symbolsrc");
 
-    // If present, read the additional, overriding user config file
-    readFile(home + "/.config/krunner-symbolsrc");
+    // Global configuration (meant to be immutable by user)
+    KConfig globalConfig ("/usr/share/config/krunner-symbolsrc");    
+    KConfigGroup globalDefGroup( &globalConfig, "Definitions" );
+    QMap< QString, QString > globalMap = globalDefGroup.entryMap();
+    
+    // Local configuration with custom definitions
+    KConfig localConfig ("krunner-symbolsrc", KConfig::SimpleConfig);
+    KConfigGroup localDefGroup( &localConfig, "Definitions" );
+    QMap< QString, QString > localMap = localDefGroup.entryMap();
+    
+    // Merge the two maps
+    globalMap.unite(localMap);
+    symbols = globalMap;
 }
 
 Symbols::~Symbols()
 {
 }
 
-void Symbols::readFile(string filepath)
-{
-    string line;
-    ifstream file (filepath);
-    if (file.is_open())
-    {
-        while ( getline (file,line) )
-        {
-            // skip commentaries (lines beginning with # apart from whitespace)
-            if (!std::regex_match (line, std::regex("(\s*)(#)(.*)")))
-            {
-                // only use lines containing an "equals" sign
-                // with at least a character before and after
-                if (std::regex_match (line, std::regex("(.*)(.)(=)(.)(.*)")))
-                {
-                    int index = line.find("=", 0);
-                    string key = line.substr(0, index);
-                    string value = line.substr(index + 1);
-                    symbols[key] = value;
-                    keylist.push_back(key);
-                }
-            }
-        }
-        file.close();
-    }
-    else cout << "Unable to open file " + filepath + ".";
-}
-
 void Symbols::match(Plasma::RunnerContext &context)
 {
     if (!context.isValid()) return;
+
+    const QString enteredKey = context.query();
     
-    // Convert query to std::string
-    const QString term = context.query();
-    string enteredKey = term.toStdString();
+    QList<Plasma::QueryMatch> matches;
+    QMapIterator<QString, QString> it(symbols);
     
     // Add matches for every keyword that equals the query
     // or that the query could be completed to
-    QList<Plasma::QueryMatch> matches;
-    for (int i = 0; i < keylist.size(); i++)
-    {
-        const string key = keylist[i];
-        
-        // The query must not be longer than the keyword;
-        // The query must be a prefix of the keyword
-        if (key.length() >= enteredKey.length() && key.substr(0, enteredKey.length()).compare(enteredKey) == 0)
-        {
-            // We have a match
+    while (it.hasNext()) {
+      
+	it.next();
+	QString foundKey = it.key();
+	
+	if (foundKey.startsWith(enteredKey))
+	{
+	    // We have a match
             Plasma::QueryMatch match(this);
             
-            if (key.length() == enteredKey.length())
+            if (foundKey.length() == enteredKey.length())
                 // the query equals the keyword -> exact match
                 match.setType(Plasma::QueryMatch::ExactMatch);
             else
@@ -129,17 +99,16 @@ void Symbols::match(Plasma::RunnerContext &context)
             
             // Basic properties for the match
             match.setIcon(QIcon::fromTheme("preferences-desktop-font"));
-            string result = symbols[key];
-            match.setText(QString::fromStdString(result));
+            match.setText(it.value());
             
             // The match's relevance gets higher the more "complete" the query string is
             // (k/x for query length k and keyword length x; 1 for complete keyword)
-            match.setRelevance((float) enteredKey.length() / (float) key.length());
+            match.setRelevance((float) enteredKey.length() / (float) foundKey.length());
             
             matches.append(match);
-        }
-    }
-    
+	}
+    }   
+
     // Feed the framework with the calculated results
     context.addMatches(matches);
 }
