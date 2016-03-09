@@ -70,6 +70,7 @@ emptyset=∅
 
 # Mathematical Operators
 plusminus=±
+division=÷
 squareroot=√
 sum=∑
 product=∏
@@ -121,16 +122,43 @@ infinity=∞
 bullet=∙
 checkmark=✓
 ballot=✗
+box=☐
+checkedbox=☑
+crossedbox=☒
 hourglass=⏳
+star4=✦
+star5=✭
+star6=✶
+cross=†
+starandcrescent=☪
+starofdavid=✡
+peace=☮
+yinyang=☯
+keyboard=⌨
+erase=⌫
+alarm=⏰
+snowflake=❄
+mail=✉
+stophand=✋
+victory=✌
+scissors=✂
+repeat=↺
+club=♣
+spade=♠
 heart=♥
+diamond=♦
 
 # Official Symbols
 trademark=™
 copyright=©
 regtrademark=®
+estimated=℮
+information=ℹ
 pound=£
 euro=€
 yen=¥
+cent=¢
+micro=µ
 
 # Dank Memes
 fliptable=(╯°□°）╯︵ ┻━┻
