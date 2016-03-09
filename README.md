@@ -25,9 +25,13 @@ You can execute the install script (inside the `krunner-symbols` directory, exec
 
 **TL;DR:** Look at the file `krunner-symbolsrc` and you will get the idea. Store custom stuff in `~/.config/krunner-symbolsrc`.
 
-Additional to the primary source `/usr/share/config/krunner-symbolsrc`, you can create a second file `~/.config/krunner-symbolsrc` where you can redefine existing definitions or create new ones, thus configuring the recognized symbols without changing the original file. Keep in mind that you will have to restart krunner (`kquitapp krunner && krunner`) for configuration changes to take effect.
+Additional to the primary source `/usr/share/config/krunner-symbolsrc`, you can create a second file `~/.config/krunner-symbolsrc` where you can create custom, additional definitions. Keep in mind that you will have to restart krunner (`kquitapp krunner && krunner`) for configuration changes to take effect.
 
-The syntax is easy. Just create lines like this:
+The syntax is easy. In the first line, the config group "Definitions" has to be defined:
+```
+[Definitions]
+```
+For custom definitions, just create lines like this:
 ```
 Keyword=Output
 ```
