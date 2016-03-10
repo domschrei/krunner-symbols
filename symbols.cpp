@@ -89,18 +89,23 @@ void Symbols::match(Plasma::RunnerContext &context)
 	{
 	    // We have a match
             Plasma::QueryMatch match(this);
-            
+        
             if (foundKey.length() == enteredKey.length())
+	    {
                 // the query equals the keyword -> exact match
                 match.setType(Plasma::QueryMatch::ExactMatch);
-            else
+		match.setText(it.value());
+	    } else {
                 // the query is a (non-complete) prefix of the keyword -> completion match
                 match.setType(Plasma::QueryMatch::CompletionMatch);
+		// also show the exact keyword for this value
+		match.setText(it.value() + "  [" + foundKey + "] ");
+	    }
             
             // Basic properties for the match
             match.setIcon(QIcon::fromTheme("preferences-desktop-font"));
-            match.setText(it.value());
-            
+	    match.setSubtext(it.value());
+	    
             // The match's relevance gets higher the more "complete" the query string is
             // (k/x for query length k and keyword length x; 1 for complete keyword)
             match.setRelevance((float) enteredKey.length() / (float) foundKey.length());
@@ -116,7 +121,7 @@ void Symbols::match(Plasma::RunnerContext &context)
 void Symbols::run(const Plasma::RunnerContext &context, const Plasma::QueryMatch &match)
 {
     Q_UNUSED(context);
-    QApplication::clipboard()->setText(match.text());
+    QApplication::clipboard()->setText(match.subtext());
 }
 
 K_EXPORT_PLASMA_RUNNER(symbols, Symbols)
