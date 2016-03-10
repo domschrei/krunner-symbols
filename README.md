@@ -19,7 +19,7 @@ If you are interested in the project, have any recommendations or suggestions, f
 
 ## Installation
 
-You can execute the install script (inside the `krunner-symbols` directory, execute the command `bash install.sh`) in order to install the plugin. However, please note that this is in an early stage of development, and errors might occur depending on your setup. In case of doubt, rather manually execute the single commands inside the script and watch the output.
+You can execute the install script (inside the `krunner-symbols` directory, execute the command `bash install.sh`) in order to install the plugin. Arch Linux users can install the `plasma5-runners-symbols` [package from AUR](https://aur.archlinux.org/packages/plasma5-runners-symbols/ "link to AUR package"), which is based on the most recent release here on Github.
 
 ## Configuration
 
