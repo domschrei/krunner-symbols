@@ -27,6 +27,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <pwd.h>
+#include <stdlib.h>
 
 using namespace std;
 
@@ -101,6 +102,14 @@ void Symbols::match(Plasma::RunnerContext &context)
 		// also show the exact keyword for this value
 		match.setText(it.value() + "  [" + foundKey + "] ");
 	    }
+	    
+	    // Check if the result is a command ("open:" or "exec:")
+	    if (it.value().startsWith("open:"))
+	    {
+		match.setText(match.text().replace("open:", "→ "));
+	    } else if (it.value().startsWith("exec:")) {
+		match.setText(match.text().replace("exec:", "→ "));
+	    }
             
             // Basic properties for the match
             match.setIcon(QIcon::fromTheme("preferences-desktop-font"));
@@ -118,10 +127,34 @@ void Symbols::match(Plasma::RunnerContext &context)
     context.addMatches(matches);
 }
 
+/**
+ * Perform an action when a user chooses one of the previously found matches.
+ * Either some string gets copied to the clipboard, a file/path/URL is being opened, 
+ * or a command is being executed.
+ */
 void Symbols::run(const Plasma::RunnerContext &context, const Plasma::QueryMatch &match)
 {
     Q_UNUSED(context);
-    QApplication::clipboard()->setText(match.subtext());
+
+    if (match.subtext().startsWith("open:"))
+    {
+	// Open a file or a URL in a (file/web) browser
+	// (in a new process, so that krunner doesn't get stuck while opening the path)
+	string command = "kde-open " + match.subtext().remove("open:").toStdString() + " &";
+        system(command.c_str());
+	
+    } else if (match.subtext().startsWith("exec:")) 
+    {
+	// Execute a command
+	// (in a new process, so that krunner doesn't get stuck while opening the path)
+	string command = match.subtext().remove("exec:").toStdString() + " &";
+        system(command.c_str());
+	
+    } else 
+    {
+	// Copy the result to clipboard
+	QApplication::clipboard()->setText(match.subtext());
+    }
 }
 
 K_EXPORT_PLASMA_RUNNER(symbols, Symbols)
