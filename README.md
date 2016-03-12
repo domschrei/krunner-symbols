@@ -43,6 +43,26 @@ Keyword=Output
 
 Blank lines are okay, too.
 
+### Advanced
+
+If you feel like doing just about *everything* with `krunner`, you can even add definitions like this:
+
+```
+# Open the KDE homepage in the standard browser
+kde=open:https://www.kde.org/
+
+# Open this plugin's configuration in the standard text editor
+config=open:~/.config/krunner-symbolsrc
+
+# Open the folder Documents in the standard file browser
+doc=open:~/Documents
+
+# Execute the given command
+rmb=exec:cd workspace && rm -f build/
+```
+
+If selected, these types of definitions (beginning with `open:` or `exec:`) will not copy the result to the clipboard, but actually try to open / execute the specified location or command, using the corresponding standard application.
+
 ## Usage
 
 Open krunner and enter the keyword for the symbol you want to copy. Click on the appearing entry tagged with *Symbols* or press Enter while focusing it. krunner disappears and the result has been copied to your clipboard. With `Ctrl+V`, you can paste it anywhere.
