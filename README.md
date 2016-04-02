@@ -19,7 +19,15 @@ If you are interested in the project, have any recommendations or suggestions, f
 
 ## Installation
 
-You can execute the install script (inside the `krunner-symbols` directory, execute the command `bash install.sh`) in order to install the plugin. Arch Linux users can install the `plasma5-runners-symbols` [package from AUR](https://aur.archlinux.org/packages/plasma5-runners-symbols/ "link to AUR package"), which is based on the most recent release here on Github.
+You can execute the install script (inside the `krunner-symbols` directory, execute the command `bash install.sh`) in order to install the plugin. Some packages are required, especially `cmake` and `extra-cmake-modules`. Additionally, some packages from the KDE and Qt frameworks are needed, which may be already installed on your system. For openSUSE (Tumbleweed), installing these packages is neccessary:
+
+```
+sudo zypper install cmake extra-cmake-modules libQt5Widgets5 libQt5Core5 libqt5-qtlocation-devel ki18n-devel ktextwidgets-devel kservice-devel krunner-devel
+```
+   
+### Arch Linux 
+
+Arch Linux users can install the `plasma5-runners-symbols` [package from AUR](https://aur.archlinux.org/packages/plasma5-runners-symbols/ "link to AUR package"), which is based on the most recent release here on Github.
 
 ## Configuration
 
@@ -57,14 +65,14 @@ config=open:~/.config/krunner-symbolsrc
 # Open the folder Documents in the standard file browser
 doc=open:~/Documents
 
-# Execute the given command
-rmb=exec:cd workspace && rm -f build/
+# Execute the given command (here: restart krunner)
+kill=exec:killall krunner && krunner
 ```
 
-If selected, these types of definitions (beginning with `open:` or `exec:`) will not copy the result to the clipboard, but actually try to open / execute the specified location or command, using the corresponding standard application.
+If selected, these types of definitions (beginning with `open:` or `exec:`) will not copy the result to the clipboard, but actually try to open or execute the specified location or command, using the corresponding standard application. Using these types of definitions is obviously at your own risk, as harmful commands might be executed if the config file is set up accordingly.
 
 ## Usage
 
 Open krunner and enter the keyword for the symbol you want to copy. Click on the appearing entry tagged with *Symbols* or press Enter while focusing it. krunner disappears and the result has been copied to your clipboard. With `Ctrl+V`, you can paste it anywhere.
 
-You can also use the plugin as some more general form of alias-resolver (i.e. entering some keyword in order to get the corresponding text) by editing the configuration file appropriately.
+You can also use the plugin as some more general form of alias-resolver (i.e. entering some keyword in order to get the corresponding text) and a general shortcut app by editing the configuration file appropriately.

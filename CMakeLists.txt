@@ -6,7 +6,7 @@ set (CMAKE_MODULE_PATH
      ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR} ${CMAKE_MODULE_PATH}
 )
 
-find_package (Qt5 ${QT_MIN_VERSION} REQUIRED CONFIG COMPONENTS Widgets Core Network Quick)
+find_package (Qt5 ${QT_MIN_VERSION} REQUIRED CONFIG COMPONENTS Widgets Core Quick)
 find_package (KF5 ${KF5_MIN_VERSION} REQUIRED COMPONENTS I18n Service Runner TextWidgets PlasmaQuick)
 
 include(KDEInstallDirs)
@@ -18,7 +18,7 @@ set(krunner_symbols_SRCS
 )
 
 add_library(krunner_symbols MODULE ${krunner_symbols_SRCS})
-target_link_libraries(krunner_symbols KF5::Runner Qt5::Widgets Qt5::Network
+target_link_libraries(krunner_symbols KF5::Runner Qt5::Widgets
                       KF5::I18n
                       KF5::Service
                       KF5::Plasma)
