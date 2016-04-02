@@ -86,6 +86,7 @@ greaterequals=≥
 almostequal=≈
 almostequals=≈
 equalsalmost=≈
+equalsnot=≠
 identical=≡
 
 # Set Relations and Operators
