@@ -83,44 +83,44 @@ void Symbols::match(Plasma::RunnerContext &context)
     // or that the query could be completed to
     while (it.hasNext()) {
       
-	it.next();
-	QString foundKey = it.key();
-	
-	if (foundKey.startsWith(enteredKey))
-	{
-	    // We have a match
+        it.next();
+        QString foundKey = it.key();
+        
+        if (foundKey.startsWith(enteredKey))
+        {
+            // We have a match
             Plasma::QueryMatch match(this);
         
             if (foundKey.length() == enteredKey.length())
-	    {
+            {
                 // the query equals the keyword -> exact match
                 match.setType(Plasma::QueryMatch::ExactMatch);
-		match.setText(it.value());
-	    } else {
+                match.setText(it.value());
+            } else {
                 // the query is a (non-complete) prefix of the keyword -> completion match
                 match.setType(Plasma::QueryMatch::CompletionMatch);
-		// also show the exact keyword for this value
-		match.setText(it.value() + "  [" + foundKey + "] ");
-	    }
-	    
-	    // Check if the result is a command ("open:" or "exec:")
-	    if (it.value().startsWith("open:"))
-	    {
-		match.setText(match.text().replace("open:", "→ "));
-	    } else if (it.value().startsWith("exec:")) {
-		match.setText(match.text().replace("exec:", "→ "));
-	    }
+                // also show the exact keyword for this value
+                match.setText(it.value() + "  [" + foundKey + "] ");
+            }
+            
+            // Check if the result is a command ("open:" or "exec:")
+            if (it.value().startsWith("open:"))
+            {
+                match.setText(match.text().replace("open:", "→ "));
+            } else if (it.value().startsWith("exec:")) {
+                match.setText(match.text().replace("exec:", "→ "));
+            }
             
             // Basic properties for the match
             match.setIcon(QIcon::fromTheme("preferences-desktop-font"));
-	    match.setSubtext(it.value());
-	    
+            match.setSubtext(it.value());
+            
             // The match's relevance gets higher the more "complete" the query string is
             // (k/x for query length k and keyword length x; 1 for complete keyword)
             match.setRelevance((float) enteredKey.length() / (float) foundKey.length());
             
             matches.append(match);
-	}
+        }
     }   
 
     // Feed the framework with the calculated results
@@ -138,22 +138,22 @@ void Symbols::run(const Plasma::RunnerContext &context, const Plasma::QueryMatch
 
     if (match.subtext().startsWith("open:"))
     {
-	// Open a file or a URL in a (file/web) browser
-	// (in a new process, so that krunner doesn't get stuck while opening the path)
-	string command = "kde-open " + match.subtext().remove("open:").toStdString() + " &";
+        // Open a file or a URL in a (file/web) browser
+        // (in a new process, so that krunner doesn't get stuck while opening the path)
+        string command = "kde-open " + match.subtext().remove("open:").toStdString() + " &";
         system(command.c_str());
-	
+        
     } else if (match.subtext().startsWith("exec:")) 
     {
-	// Execute a command
-	// (in a new process, so that krunner doesn't get stuck while opening the path)
-	string command = match.subtext().remove("exec:").toStdString() + " &";
+        // Execute a command
+        // (in a new process, so that krunner doesn't get stuck while opening the path)
+        string command = match.subtext().remove("exec:").toStdString() + " &";
         system(command.c_str());
-	
+        
     } else 
     {
-	// Copy the result to clipboard
-	QApplication::clipboard()->setText(match.subtext());
+        // Copy the result to clipboard
+        QApplication::clipboard()->setText(match.subtext());
     }
 }
 
