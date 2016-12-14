@@ -30,10 +30,13 @@ public:
     ~Symbols();
 
     void match(Plasma::RunnerContext &);
+    void matchUnicode(Plasma::RunnerContext &);
     void run(const Plasma::RunnerContext &, const Plasma::QueryMatch &);
     
 private:
     QMap<QString, QString> symbols;
+    QMap<QString, QString> unicodeSymbols;
+    int maxUnicodeMatches = 3;
 };
 
 #endif

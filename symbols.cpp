@@ -28,6 +28,7 @@
 #include <sys/types.h>
 #include <pwd.h>
 #include <stdlib.h>
+#include <iostream>
 
 using namespace std;
 
@@ -64,6 +65,11 @@ Symbols::Symbols(QObject *parent, const QVariantList &args)
     // Merge the two maps
     globalMap.unite(localMap);
     symbols = globalMap;
+
+    // Unicode symbols
+    KConfig unicodeConfig("/usr/share/config/krunner-symbols-unicode-index");
+    KConfigGroup unicodeGroup(&unicodeConfig, "Unicode");
+    unicodeSymbols = unicodeGroup.entryMap();
 }
 
 Symbols::~Symbols()
@@ -91,29 +97,28 @@ void Symbols::match(Plasma::RunnerContext &context)
             // We have a match
             Plasma::QueryMatch match(this);
         
-            if (foundKey.length() == enteredKey.length())
-            {
+            if (foundKey.length() == enteredKey.length()) {
                 // the query equals the keyword -> exact match
                 match.setType(Plasma::QueryMatch::ExactMatch);
-                match.setText(it.value());
             } else {
                 // the query is a (non-complete) prefix of the keyword -> completion match
                 match.setType(Plasma::QueryMatch::CompletionMatch);
-                // also show the exact keyword for this value
-                match.setText(it.value() + "  [" + foundKey + "] ");
             }
+            // also show the exact keyword for this value
+            match.setText(it.value());
+            match.setSubtext("[" + foundKey + "]");
             
             // Check if the result is a command ("open:" or "exec:")
             if (it.value().startsWith("open:"))
             {
                 match.setText(match.text().replace("open:", "→ "));
             } else if (it.value().startsWith("exec:")) {
-                match.setText(match.text().replace("exec:", "→ "));
+                match.setText(match.text().replace("exec:", ">_ "));
             }
             
             // Basic properties for the match
             match.setIcon(QIcon::fromTheme("preferences-desktop-font"));
-            match.setSubtext(it.value());
+            //match.setSubtext(it.value());
             
             // The match's relevance gets higher the more "complete" the query string is
             // (k/x for query length k and keyword length x; 1 for complete keyword)
@@ -123,6 +128,72 @@ void Symbols::match(Plasma::RunnerContext &context)
         }
     }   
 
+    // Feed the framework with the calculated results
+    context.addMatches(matches);
+    
+    // Also look for fitting unicode symbols
+    matchUnicode(context);
+}
+
+void Symbols::matchUnicode(Plasma::RunnerContext &context)
+{
+    if (!context.isValid()) return;
+    const QString enteredKey = context.query();
+    QStringList enteredTokens = enteredKey.split(' ', QString::SkipEmptyParts);
+    
+    QList<Plasma::QueryMatch> matches;
+    QMapIterator<QString, QString> it(unicodeSymbols);
+    int amountUnicodeMatches = 0;
+    
+    while (it.hasNext()) {
+        
+        it.next();
+        QString foundKey = it.key();
+        
+        bool isMatching = false;
+        QListIterator<QString> tokenIt(enteredTokens);
+        while (tokenIt.hasNext()) {
+            QString token = tokenIt.next();
+            isMatching |= foundKey.contains(token, Qt::CaseInsensitive);
+            if (isMatching) {
+                break;
+            }
+        }
+        
+        if (isMatching) {
+            //const QString str = QLatin1String(it.value());
+            bool ok;
+            const unsigned int parsedValue = it.value().toUInt(&ok, 16);
+            if (ok) {
+            
+                Plasma::QueryMatch match(this);
+                QString result = QChar(parsedValue);
+                
+                std::cout << "match with " << result.toStdString() << std::endl;
+                
+                match.setType(Plasma::QueryMatch::CompletionMatch);
+                match.setText(result);
+                match.setSubtext("[" + foundKey + "]");
+                
+                // Basic properties for the match
+                match.setIcon(QIcon::fromTheme("preferences-desktop-font"));
+                //match.setSubtext(result);
+                
+                // The match's relevance gets higher the more "complete" the query string is
+                // (k/x for query length k and keyword length x; 1 for complete keyword)
+                match.setRelevance(0.5f);
+                
+                matches.append(match);   
+                amountUnicodeMatches++;
+                
+                /*if (amountUnicodeMatches >= maxUnicodeMatches) {
+                    std::cout << "not showing " << result.toStdString() << std::endl;
+                    break;
+                }*/
+            }
+        }
+    }
+    
     // Feed the framework with the calculated results
     context.addMatches(matches);
 }
@@ -136,24 +207,24 @@ void Symbols::run(const Plasma::RunnerContext &context, const Plasma::QueryMatch
 {
     Q_UNUSED(context);
 
-    if (match.subtext().startsWith("open:"))
+    if (match.text().startsWith("→ "))
     {
         // Open a file or a URL in a (file/web) browser
         // (in a new process, so that krunner doesn't get stuck while opening the path)
-        string command = "kde-open " + match.subtext().remove("open:").toStdString() + " &";
+        string command = "kde-open " + match.text().remove("→ ").toStdString() + " &";
         system(command.c_str());
         
-    } else if (match.subtext().startsWith("exec:")) 
+    } else if (match.text().startsWith(">_ ")) 
     {
         // Execute a command
         // (in a new process, so that krunner doesn't get stuck while opening the path)
-        string command = match.subtext().remove("exec:").toStdString() + " &";
+        string command = match.text().remove(">_ ").toStdString() + " &";
         system(command.c_str());
         
     } else 
     {
         // Copy the result to clipboard
-        QApplication::clipboard()->setText(match.subtext());
+        QApplication::clipboard()->setText(match.text());
     }
 }
 
