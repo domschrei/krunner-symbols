@@ -69,7 +69,12 @@ Symbols::Symbols(QObject *parent, const QVariantList &args)
     // Unicode symbols
     KConfig unicodeConfig("/usr/share/config/krunner-symbols-unicode-index");
     KConfigGroup unicodeGroup(&unicodeConfig, "Unicode");
-    unicodeSymbols = unicodeGroup.entryMap();
+    QMap<QString, QString> unicodeGroupFullDesc = unicodeGroup.entryMap();
+    QMapIterator<QString, QString> it(unicodeGroupFullDesc);
+    while (it.hasNext()) {
+        it.next();
+        unicodeSymbols.insert(it.key().split(' ', QString::SkipEmptyParts), it.value());
+    }
 }
 
 Symbols::~Symbols()
@@ -112,8 +117,12 @@ void Symbols::match(Plasma::RunnerContext &context)
             if (it.value().startsWith("open:"))
             {
                 match.setText(match.text().replace("open:", "→ "));
+                match.setData("open");
             } else if (it.value().startsWith("exec:")) {
                 match.setText(match.text().replace("exec:", ">_ "));
+                match.setData("execute");
+            } else {
+                match.setData("symbol");
             }
             
             // Basic properties for the match
@@ -142,54 +151,83 @@ void Symbols::matchUnicode(Plasma::RunnerContext &context)
     QStringList enteredTokens = enteredKey.split(' ', QString::SkipEmptyParts);
     
     QList<Plasma::QueryMatch> matches;
-    QMapIterator<QString, QString> it(unicodeSymbols);
-    int amountUnicodeMatches = 0;
     
+    // Iterate over all available unicode symbols
+    QMapIterator<QStringList, QString> it(unicodeSymbols);
     while (it.hasNext()) {
         
         it.next();
-        QString foundKey = it.key();
+        QStringList foundKey = it.key(); // tokenized symbol description
+        QString foundDescription = " "; // aggregation of all tokens of the symbol description
+     
+        // actual relevance and maximum relevance of this match
+        // is being calculated on-the-fly
+        float relevance = 0.0f;
+        float maxRelevance = 0.0f;
+    
+        // Iterate over all tokens of the unicode symbol description
+        QListIterator<QString> unicodeTokens(foundKey);
+        while (unicodeTokens.hasNext()) {
+            QString unicodeToken = unicodeTokens.next();
+                
+            foundDescription += unicodeToken + " ";
+            float newRelevance = 0.0f;
+            
+            // Now iterate over the entered search tokens
+            QListIterator<QString> tokenIt(enteredTokens);
+            while (tokenIt.hasNext()) {
+                QString enteredToken = tokenIt.next();
         
-        bool isMatching = false;
-        QListIterator<QString> tokenIt(enteredTokens);
-        while (tokenIt.hasNext()) {
-            QString token = tokenIt.next();
-            isMatching |= foundKey.contains(token, Qt::CaseInsensitive);
-            if (isMatching) {
-                break;
+                // Depending on the following comparisons,
+                // some relevance heuristic for the found token is being applied
+                // (Only the best match for the found token matters to the final relevance)
+                if (unicodeToken.compare(enteredToken, Qt::CaseInsensitive) == 0) {
+                    // exact match between entered token and found token
+                    newRelevance = std::max(newRelevance, 1.0f * enteredToken.length());
+                } else if (unicodeToken.startsWith(enteredToken, Qt::CaseInsensitive)) {
+                    // found token begins with entered token
+                    newRelevance = std::max(newRelevance, 0.75f * enteredToken.length());
+                } else if (unicodeToken.contains(enteredToken, Qt::CaseInsensitive)) {
+                    // found token contains entered token
+                    newRelevance = std::max(newRelevance, 0.5f * enteredToken.length());
+                }
             }
+            relevance += newRelevance;
+            maxRelevance += unicodeToken.length();
         }
+        foundDescription = foundDescription.trimmed();
         
-        if (isMatching) {
-            //const QString str = QLatin1String(it.value());
+        // Some relevance means that there is a (partial) match
+        if (relevance > 0) {
+            
+            // Try to transform the value of the found object into a unicode symbol
             bool ok;
             const unsigned int parsedValue = it.value().toUInt(&ok, 16);
             if (ok) {
-            
-                Plasma::QueryMatch match(this);
+
                 QString result = QChar(parsedValue);
+                relevance = (relevance / maxRelevance);
                 
-                std::cout << "match with " << result.toStdString() << std::endl;
-                
-                match.setType(Plasma::QueryMatch::CompletionMatch);
+                // create match object
+                Plasma::QueryMatch match(this);
+                // decide whether this is an exact match or just a possible match
+                if (relevance >= 1.0f - 0.0001) {
+                    // if there is an exact match and the search term is longer
+                    // than nessessary, the relevance will be decreased
+                    relevance *= ((float) foundDescription.length()) / enteredKey.length();
+                    if (relevance >= 1.0f - 0.0001) {
+                        match.setType(Plasma::QueryMatch::ExactMatch);
+                    } else {
+                        match.setType(Plasma::QueryMatch::PossibleMatch);
+                    }
+                }
                 match.setText(result);
-                match.setSubtext("[" + foundKey + "]");
-                
-                // Basic properties for the match
+                match.setSubtext("[" + foundDescription + "]");
+                match.setData("symbol");
                 match.setIcon(QIcon::fromTheme("preferences-desktop-font"));
-                //match.setSubtext(result);
+                match.setRelevance(relevance);
                 
-                // The match's relevance gets higher the more "complete" the query string is
-                // (k/x for query length k and keyword length x; 1 for complete keyword)
-                match.setRelevance(0.5f);
-                
-                matches.append(match);   
-                amountUnicodeMatches++;
-                
-                /*if (amountUnicodeMatches >= maxUnicodeMatches) {
-                    std::cout << "not showing " << result.toStdString() << std::endl;
-                    break;
-                }*/
+                matches.append(match);  
             }
         }
     }
@@ -207,14 +245,14 @@ void Symbols::run(const Plasma::RunnerContext &context, const Plasma::QueryMatch
 {
     Q_UNUSED(context);
 
-    if (match.text().startsWith("→ "))
+    if (match.data().toString().compare("open") == 0)
     {
         // Open a file or a URL in a (file/web) browser
         // (in a new process, so that krunner doesn't get stuck while opening the path)
         string command = "kde-open " + match.text().remove("→ ").toStdString() + " &";
         system(command.c_str());
         
-    } else if (match.text().startsWith(">_ ")) 
+    } else if (match.data().toString().compare("execute") == 0) 
     {
         // Execute a command
         // (in a new process, so that krunner doesn't get stuck while opening the path)

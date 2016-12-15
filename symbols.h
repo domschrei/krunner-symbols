@@ -35,8 +35,7 @@ public:
     
 private:
     QMap<QString, QString> symbols;
-    QMap<QString, QString> unicodeSymbols;
-    int maxUnicodeMatches = 3;
+    QMap<QStringList, QString> unicodeSymbols;
 };
 
 #endif
