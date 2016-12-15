@@ -67,14 +67,9 @@ Symbols::Symbols(QObject *parent, const QVariantList &args)
     symbols = globalMap;
 
     // Unicode symbols
-    KConfig unicodeConfig("/usr/share/config/krunner-symbols-unicode-index");
+    KConfig unicodeConfig("/usr/share/config/krunner-symbols-full-unicode-index");
     KConfigGroup unicodeGroup(&unicodeConfig, "Unicode");
-    QMap<QString, QString> unicodeGroupFullDesc = unicodeGroup.entryMap();
-    QMapIterator<QString, QString> it(unicodeGroupFullDesc);
-    while (it.hasNext()) {
-        it.next();
-        unicodeSymbols.insert(it.key().split(' ', QString::SkipEmptyParts), it.value());
-    }
+    unicodeSymbols = unicodeGroup.entryMap();
 }
 
 Symbols::~Symbols()
@@ -147,17 +142,26 @@ void Symbols::match(Plasma::RunnerContext &context)
 void Symbols::matchUnicode(Plasma::RunnerContext &context)
 {
     if (!context.isValid()) return;
+    
+    std::cout << unicodeSymbols.size() << std::endl;
+    
     const QString enteredKey = context.query();
+    
+    // do not match against searches with less than three characters
+    if (enteredKey.length() < 3) {
+        return;
+    }
+    
     QStringList enteredTokens = enteredKey.split(' ', QString::SkipEmptyParts);
     
     QList<Plasma::QueryMatch> matches;
     
     // Iterate over all available unicode symbols
-    QMapIterator<QStringList, QString> it(unicodeSymbols);
+    QMapIterator<QString, QString> it(unicodeSymbols);
     while (it.hasNext()) {
-        
+       
         it.next();
-        QStringList foundKey = it.key(); // tokenized symbol description
+        QString foundKey = it.key(); // symbol description
         QString foundDescription = " "; // aggregation of all tokens of the symbol description
      
         // actual relevance and maximum relevance of this match
@@ -166,7 +170,7 @@ void Symbols::matchUnicode(Plasma::RunnerContext &context)
         float maxRelevance = 0.0f;
     
         // Iterate over all tokens of the unicode symbol description
-        QListIterator<QString> unicodeTokens(foundKey);
+        QListIterator<QString> unicodeTokens(foundKey.split(' ', QString::SkipEmptyParts));
         while (unicodeTokens.hasNext()) {
             QString unicodeToken = unicodeTokens.next();
                 
@@ -192,6 +196,7 @@ void Symbols::matchUnicode(Plasma::RunnerContext &context)
                     newRelevance = std::max(newRelevance, 0.5f * enteredToken.length());
                 }
             }
+            
             relevance += newRelevance;
             maxRelevance += unicodeToken.length();
         }
