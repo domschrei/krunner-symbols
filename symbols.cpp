@@ -162,7 +162,6 @@ void Symbols::matchUnicode(Plasma::RunnerContext &context)
        
         it.next();
         QString foundKey = it.key(); // symbol description
-        QString foundDescription = " "; // aggregation of all tokens of the symbol description
      
         // actual relevance and maximum relevance of this match
         // is being calculated on-the-fly
@@ -173,8 +172,7 @@ void Symbols::matchUnicode(Plasma::RunnerContext &context)
         QListIterator<QString> unicodeTokens(foundKey.split(' ', QString::SkipEmptyParts));
         while (unicodeTokens.hasNext()) {
             QString unicodeToken = unicodeTokens.next();
-                
-            foundDescription += unicodeToken + " ";
+            
             float newRelevance = 0.0f;
             
             // Now iterate over the entered search tokens
@@ -200,7 +198,6 @@ void Symbols::matchUnicode(Plasma::RunnerContext &context)
             relevance += newRelevance;
             maxRelevance += unicodeToken.length();
         }
-        foundDescription = foundDescription.trimmed();
         
         // Some relevance means that there is a (partial) match
         if (relevance > 0) {
@@ -219,7 +216,7 @@ void Symbols::matchUnicode(Plasma::RunnerContext &context)
                 if (relevance >= 1.0f - 0.0001) {
                     // if there is an exact match and the search term is longer
                     // than nessessary, the relevance will be decreased
-                    relevance *= ((float) foundDescription.length()) / enteredKey.length();
+                    relevance *= ((float) foundKey.length()) / enteredKey.length();
                     if (relevance >= 1.0f - 0.0001) {
                         match.setType(Plasma::QueryMatch::ExactMatch);
                     } else {
@@ -227,7 +224,7 @@ void Symbols::matchUnicode(Plasma::RunnerContext &context)
                     }
                 }
                 match.setText(result);
-                match.setSubtext("[" + foundDescription + "]");
+                match.setSubtext("[" + foundKey + "]");
                 match.setData("symbol");
                 match.setIcon(QIcon::fromTheme("preferences-desktop-font"));
                 match.setRelevance(relevance);
