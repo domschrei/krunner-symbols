@@ -15,7 +15,7 @@ Which keywords and symbols are supported depends on an open-ended text file (see
 
 krunner is a great tool because it's always accessible, very fast, and really unintrusive, as it temporarily gets focused when called, but then returns the focus to the previously focused view when finished. Because of this, a quick krunner query can be perfectly integrated into a user's workflow, adding efficiency and convenience. This little tool is meant to support this idea of usage.
 
-If you are interested in the project, have any recommendations or suggestions, feel free to contact me or post an issue. As I did not have any experience with Plasma development before, I am happy to hear about how I can improve the code and/or the build process.
+If you are interested in the project, have any recommendations or suggestions, feel free to contact me or post an issue.
 
 ## Installation
 
@@ -35,7 +35,7 @@ Arch Linux users can install the `plasma5-runners-symbols` [package from AUR](ht
 
 Additional to the primary source `/usr/share/config/krunner-symbolsrc`, you can create a second file `~/.config/krunner-symbolsrc` where you can create custom, additional definitions. Keep in mind that you will have to restart krunner (`kquitapp krunner && krunner`) for configuration changes to take effect.
 
-The syntax is easy. In the first line, the config group "Definitions" has to be defined:
+The syntax is easy. Define custom symbols below a config group called "Definitions":
 ```
 [Definitions]
 ```
@@ -50,6 +50,15 @@ Keyword=Output
 ```
 
 Blank lines are okay, too.
+
+### Unicode Support
+
+This plugin now supports the Unicode database (i.e. [all symbols inside the official UnicodeData.txt](http://www.unicode.org/Public/UCD/latest/ucd/UnicodeData.txt) can be retrieved by entering the corresponding description for the symbol). At the moment this feature is enabled by default, though you can disable it; just set `UseUnicodeDatabase` to `false` inside the `[Preferences]` group of your config file:
+
+```
+[Preferences]
+UseUnicodeDatabase=false
+```
 
 ### Advanced
 
