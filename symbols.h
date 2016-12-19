@@ -36,6 +36,7 @@ public:
 private:
     QMap<QString, QString> symbols;
     QMap<QString, QString> unicodeSymbols;
+    QMap<QString, QVariant> prefs;
 };
 
 #endif

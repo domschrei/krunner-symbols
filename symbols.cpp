@@ -53,23 +53,34 @@ Symbols::Symbols(QObject *parent, const QVariantList &args)
     );
 
     // Global configuration (meant to be immutable by user)
-    KConfig globalConfig ("/usr/share/config/krunner-symbolsrc");    
-    KConfigGroup globalDefGroup( &globalConfig, "Definitions" );
-    QMap< QString, QString > globalMap = globalDefGroup.entryMap();
+    KConfig globalConfig("/usr/share/config/krunner-symbolsrc");    
+    KConfigGroup globalDefGroup(&globalConfig, "Definitions");
+    QMap<QString, QString> globalMap = globalDefGroup.entryMap();
     
     // Local configuration with custom definitions
-    KConfig localConfig ("krunner-symbolsrc", KConfig::SimpleConfig);
-    KConfigGroup localDefGroup( &localConfig, "Definitions" );
-    QMap< QString, QString > localMap = localDefGroup.entryMap();
+    KConfig localConfig("krunner-symbolsrc", KConfig::SimpleConfig);
     
-    // Merge the two maps
+    // Preferences inside local configuration
+    KConfigGroup preferences(&localConfig, "Preferences");
+    // UseUnicodeDatabase: Default true
+    prefs.insert("UseUnicodeDatabase", 
+                 (!preferences.entryMap().contains("UseUnicodeDatabase")) 
+                 || preferences.entryMap().value("UseUnicodeDatabase").compare("true") == 0);
+    
+    // Custom definitions inside local configuration
+    KConfigGroup localDefGroup(&localConfig, "Definitions");
+    QMap<QString, QString> localMap = localDefGroup.entryMap();
+    
+    // Merge the two "Definitions" maps
     globalMap.unite(localMap);
     symbols = globalMap;
 
-    // Unicode symbols
-    KConfig unicodeConfig("/usr/share/config/krunner-symbols-full-unicode-index");
-    KConfigGroup unicodeGroup(&unicodeConfig, "Unicode");
-    unicodeSymbols = unicodeGroup.entryMap();
+    // Unicode symbols (only if not disabled by preferences)
+    if (prefs.value("UseUnicodeDatabase").toBool()) {
+        KConfig unicodeConfig("/usr/share/config/krunner-symbols-full-unicode-index");
+        KConfigGroup unicodeGroup(&unicodeConfig, "Unicode");
+        unicodeSymbols = unicodeGroup.entryMap();
+    }
 }
 
 Symbols::~Symbols()
@@ -101,7 +112,8 @@ void Symbols::match(Plasma::RunnerContext &context)
                 // the query equals the keyword -> exact match
                 match.setType(Plasma::QueryMatch::ExactMatch);
             } else {
-                // the query is a (non-complete) prefix of the keyword -> completion match
+                // the query is a (non-complete) prefix of the keyword 
+                // -> completion match
                 match.setType(Plasma::QueryMatch::CompletionMatch);
             }
             // also show the exact keyword for this value
@@ -134,17 +146,16 @@ void Symbols::match(Plasma::RunnerContext &context)
 
     // Feed the framework with the calculated results
     context.addMatches(matches);
-    
-    // Also look for fitting unicode symbols
-    matchUnicode(context);
+
+    if (prefs.value("UseUnicodeDatabase").toBool()) {
+        // Also look for fitting unicode symbols (only if not disabled by preferences)
+        matchUnicode(context);
+    }
 }
 
 void Symbols::matchUnicode(Plasma::RunnerContext &context)
 {
     if (!context.isValid()) return;
-    
-    std::cout << unicodeSymbols.size() << std::endl;
-    
     const QString enteredKey = context.query();
     
     // do not match against searches with less than three characters
@@ -153,7 +164,6 @@ void Symbols::matchUnicode(Plasma::RunnerContext &context)
     }
     
     QStringList enteredTokens = enteredKey.split(' ', QString::SkipEmptyParts);
-    
     QList<Plasma::QueryMatch> matches;
     
     // Iterate over all available unicode symbols
