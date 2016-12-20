@@ -22,9 +22,9 @@ If you are interested in the project, have any recommendations or suggestions, f
 You can execute the install script (inside the `krunner-symbols` directory, execute the command `bash install.sh`) in order to install the plugin. Some packages are required, especially `cmake` and `extra-cmake-modules`. Additionally, some packages from the KDE and Qt frameworks are needed, which may be already installed on your system. For openSUSE (Tumbleweed), installing these packages is neccessary:
 
 ```
-sudo zypper install cmake extra-cmake-modules libQt5Widgets5 libQt5Core5 libqt5-qtlocation-devel ki18n-devel ktextwidgets-devel kservice-devel krunner-devel
+sudo zypper install cmake extra-cmake-modules libQt5Widgets5 libQt5Core5 libqt5-qtlocation-devel ki18n-devel ktextwidgets-devel kservice-devel krunner-devel gettext-tools
 ```
-   
+
 ### Arch Linux 
 
 Arch Linux users can install the `plasma5-runners-symbols` [package from AUR](https://aur.archlinux.org/packages/plasma5-runners-symbols/ "link to AUR package"), which is based on the most recent release here on Github.
