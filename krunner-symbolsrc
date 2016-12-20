@@ -1,3 +1,12 @@
+###########################################################
+# It is not recommended to modify this file.              #
+# If you want to set custom preferences or definitions,   #
+# create or modify the file ~/.config/krunner-symbolsrc,  #
+# where the same syntax applies and custom configuration  #
+# will override the one inside this file.                 #
+###########################################################
+
+
 [Preferences]
 
 UseUnicodeDatabase=false
