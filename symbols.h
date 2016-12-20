@@ -37,6 +37,9 @@ private:
     QMap<QString, QString> symbols;
     QMap<QString, QString> unicodeSymbols;
     QMap<QString, QVariant> prefs;
+    
+    // helper method
+    void mergeMapsOverriding(QMap<QString, QString> *overriddenMap, QMap<QString, QString> *overridingMap);
 };
 
 #endif

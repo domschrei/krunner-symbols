@@ -54,27 +54,30 @@ Symbols::Symbols(QObject *parent, const QVariantList &args)
 
     // Global configuration (meant to be immutable by user)
     KConfig globalConfig("/usr/share/config/krunner-symbolsrc");    
-    KConfigGroup globalDefGroup(&globalConfig, "Definitions");
-    QMap<QString, QString> globalMap = globalDefGroup.entryMap();
-    
-    // Local configuration with custom definitions
+    // Local configuration with custom definitions and preferences
     KConfig localConfig("krunner-symbolsrc", KConfig::SimpleConfig);
     
-    // Preferences inside local configuration
-    KConfigGroup preferences(&localConfig, "Preferences");
+    // Symbol definitions
+    KConfigGroup globalDefGroup(&globalConfig, "Definitions");    
+    QMap<QString, QString> globalDefMap = globalDefGroup.entryMap();
+    KConfigGroup localDefGroup(&localConfig, "Definitions");
+    QMap<QString, QString> localDefMap = localDefGroup.entryMap();
+    mergeMapsOverriding(&globalDefMap, &localDefMap);
+    symbols = localDefMap;
+    
+    // Preferences configuration
+    KConfigGroup globalPrefGroup(&globalConfig, "Preferences");
+    QMap<QString, QString> globalPrefMap = globalPrefGroup.entryMap();
+    KConfigGroup localPrefGroup(&localConfig, "Preferences");
+    QMap<QString, QString> localPrefMap = localPrefGroup.entryMap();
+    mergeMapsOverriding(&globalPrefMap, &localPrefMap);
+    QMap<QString, QString> prefMap = localPrefMap;
+    
     // UseUnicodeDatabase: Default true
     prefs.insert("UseUnicodeDatabase", 
-                 (!preferences.entryMap().contains("UseUnicodeDatabase")) 
-                 || preferences.entryMap().value("UseUnicodeDatabase").compare("true") == 0);
+                 (!prefMap.contains("UseUnicodeDatabase")) 
+                 || prefMap.value("UseUnicodeDatabase").compare("true") == 0);
     
-    // Custom definitions inside local configuration
-    KConfigGroup localDefGroup(&localConfig, "Definitions");
-    QMap<QString, QString> localMap = localDefGroup.entryMap();
-    
-    // Merge the two "Definitions" maps
-    globalMap.unite(localMap);
-    symbols = globalMap;
-
     // Unicode symbols (only if not disabled by preferences)
     if (prefs.value("UseUnicodeDatabase").toBool()) {
         KConfig unicodeConfig("/usr/share/config/krunner-symbols-full-unicode-index");
@@ -275,6 +278,21 @@ void Symbols::run(const Plasma::RunnerContext &context, const Plasma::QueryMatch
     {
         // Copy the result to clipboard
         QApplication::clipboard()->setText(match.text());
+    }
+}
+
+/*
+ * Stores the union of two QMap<QString,QString> objects inside the second map, 
+ * whereas an entry of the overriding map will be preferred (and the overridden map's 
+ * one will be ignored) in case of duplicate keys.
+ */
+void Symbols::mergeMapsOverriding(QMap<QString, QString> *overriddenMap, QMap<QString, QString> *overridingMap) {
+    QMapIterator<QString,QString> it(*overriddenMap);
+    while (it.hasNext()) {
+        it.next();
+        if (!overridingMap->contains(it.key())) {
+            overridingMap->insert(it.key(), it.value());
+        }
     }
 }
 
