@@ -12,6 +12,8 @@ cmake .. -DCMAKE_INSTALL_PREFIX=`kf5-config --prefix` -DQT_PLUGIN_INSTALL_DIR=`k
 make 
 sudo make install
 
+set +e
+
 # Restart krunner for the changes to take effect
-kquitapp krunner
-krunner > /dev/null 2>&1 &
+kquitapp5 krunner 2> /dev/null
+kstart5 --windowclass krunner krunner > /dev/null 2>&1 & 
