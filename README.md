@@ -33,7 +33,7 @@ Arch Linux users can install the `plasma5-runners-symbols` [package from AUR](ht
 
 **TL;DR:** Look at the file `krunner-symbolsrc` and you will get the idea. Store custom stuff in `~/.config/krunner-symbolsrc`.
 
-Additional to the primary source `/usr/share/config/krunner-symbolsrc`, you can create a second file `~/.config/krunner-symbolsrc` where you can create custom, additional definitions. Keep in mind that you will have to restart krunner (`kquitapp krunner && krunner`) for configuration changes to take effect.
+Additional to the primary source `/usr/share/config/krunner-symbolsrc`, you can create a second file `~/.config/krunner-symbolsrc` where you can create custom, additional definitions. Those definitions will dominate those inside the global config, so that you can give a new meaning to globally defined symbols, if you wish. Keep in mind that you will have to restart krunner (`kquitapp krunner && krunner`) for configuration changes to take effect.
 
 The syntax is easy. Define custom symbols below a config group called "Definitions":
 ```
@@ -53,11 +53,11 @@ Blank lines are okay, too.
 
 ### Unicode Support
 
-This plugin now supports the Unicode database (i.e. [all symbols inside the official UnicodeData.txt](http://www.unicode.org/Public/UCD/latest/ucd/UnicodeData.txt) can be retrieved by entering the corresponding description for the symbol). At the moment this feature is enabled by default, though you can disable it; just set `UseUnicodeDatabase` to `false` inside the `[Preferences]` group of your config file:
+This plugin now supports the Unicode database (i.e. [all symbols inside the official UnicodeData.txt](http://www.unicode.org/Public/UCD/latest/ucd/UnicodeData.txt) can be retrieved by entering the corresponding description for the symbol). At the moment this feature is disabled by default because there is a significant performance overhead of searching all the unicode domain, though you can enable it by setting `UseUnicodeDatabase` to `true` inside the `[Preferences]` group of your config file:
 
 ```
 [Preferences]
-UseUnicodeDatabase=false
+UseUnicodeDatabase=true
 ```
 
 ### Advanced
