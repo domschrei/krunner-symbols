@@ -30,13 +30,15 @@ public:
     ~Symbols();
 
     void match(Plasma::RunnerContext &);
-    void matchUnicode(Plasma::RunnerContext &);
     void run(const Plasma::RunnerContext &, const Plasma::QueryMatch &);
     
 private:
     QMap<QString, QString> symbols;
     QMap<QString, QString> unicodeSymbols;
     QMap<QString, QVariant> prefs;
+    
+    void loadConfig();
+    void matchUnicode(Plasma::RunnerContext&);
     
     // helper method
     void mergeMapsOverriding(QMap<QString, QString> *overriddenMap, QMap<QString, QString> *overridingMap);

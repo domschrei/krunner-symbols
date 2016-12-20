@@ -52,6 +52,13 @@ Symbols::Symbols(QObject *parent, const QVariantList &args)
         )
     );
 
+    loadConfig();
+}
+
+Symbols::~Symbols() {}
+
+void Symbols::loadConfig() {
+    
     // Global configuration (meant to be immutable by user)
     KConfig globalConfig("/usr/share/config/krunner-symbolsrc");    
     // Local configuration with custom definitions and preferences
@@ -84,10 +91,6 @@ Symbols::Symbols(QObject *parent, const QVariantList &args)
         KConfigGroup unicodeGroup(&unicodeConfig, "Unicode");
         unicodeSymbols = unicodeGroup.entryMap();
     }
-}
-
-Symbols::~Symbols()
-{
 }
 
 void Symbols::match(Plasma::RunnerContext &context)
