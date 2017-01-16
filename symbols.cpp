@@ -16,20 +16,17 @@
  *  If not, see <http://www.gnu.org/licenses/>.                               *
  *****************************************************************************/
 
-#include "symbols.h"
+#include <iostream>
 
 #include <KLocalizedString>
-#include <QApplication>
-#include <QClipboard>
 #include <KConfigCore/KConfig>
 #include <KConfigCore/KConfigGroup>
+
+#include <QApplication>
+#include <QClipboard>
 #include <QRegExp>
-#include <stdio.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <pwd.h>
-#include <stdlib.h>
-#include <iostream>
+
+#include "symbols.h"
 
 using namespace std;
 
