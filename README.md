@@ -76,6 +76,17 @@ UseUnicodeDatabase=true
 
 ### Advanced
 
+Multiple keywords for the same result can be expressed like this:
+```
+ampersand,fancyand,curlyand=&
+```
+which will internally be expanded to this:
+```
+ampersand=&
+fancyand=&
+curlyand=&
+```
+
 If you feel like doing just about *everything* with `krunner`, you can even add definitions like this:
 
 ```
