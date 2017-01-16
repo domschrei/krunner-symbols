@@ -40,8 +40,9 @@ private:
     void loadConfig();
     void matchUnicode(Plasma::RunnerContext&);
     
-    // helper method
+    // helper methods
     void mergeMapsOverriding(QMap<QString, QString> *overriddenMap, QMap<QString, QString> *overridingMap);
+    void expandMultiDefinitions();
 };
 
 #endif

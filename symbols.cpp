@@ -23,6 +23,7 @@
 #include <QClipboard>
 #include <KConfigCore/KConfig>
 #include <KConfigCore/KConfigGroup>
+#include <QRegExp>
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -71,6 +72,10 @@ void Symbols::loadConfig() {
     QMap<QString, QString> localDefMap = localDefGroup.entryMap();
     mergeMapsOverriding(&globalDefMap, &localDefMap);
     symbols = localDefMap;
+    
+    // Find and change definitions of the form "a,b,c=d"
+    // to "a=d", "b=d", "c=d"
+    expandMultiDefinitions();
     
     // Preferences configuration
     KConfigGroup globalPrefGroup(&globalConfig, "Preferences");
@@ -297,6 +302,48 @@ void Symbols::mergeMapsOverriding(QMap<QString, QString> *overriddenMap, QMap<QS
             overridingMap->insert(it.key(), it.value());
         }
     }
+}
+
+/*
+ * Iterates over all symbol definitions and looks for definitions of the kind
+ * "a,b,c=d". These definitions are expanded to seperate definitions of the 
+ * form "a=d", "b=d", "c=d".
+ */
+void Symbols::expandMultiDefinitions() {
+    
+    QMap<QString, QString> splittedSymbols;
+    QStringList keysToRemove; // expanded keys are stored herein
+    QMapIterator<QString, QString> it(symbols);
+    QRegExp exp("^(.+,)+.+$"); // regex for multiple keys
+    
+    // For each known symbol
+    while (it.hasNext()) {
+        it.next();
+        QString key = it.key();
+        int pos = exp.indexIn(key, 0);
+        if (pos >= 0) {
+            
+            // Multi definition found
+            QStringList keywords = key.split(",");
+            QStringListIterator strIt(keywords);
+            while (strIt.hasNext()) {
+                
+                // Add a new symbol entry for each part of the key
+                QString newKey = strIt.next();
+                splittedSymbols.insert(newKey, it.value());
+            }
+            // The old key is to be deleted
+            keysToRemove.append(key);
+        }
+    }
+    // Remove old keys
+    QStringListIterator strIt(keysToRemove);
+    while (strIt.hasNext()) {
+        symbols.remove(strIt.next());
+    }
+    
+    // Merge the ney symbols into the map with all symbols
+    symbols.unite(splittedSymbols);
 }
 
 K_EXPORT_PLASMA_RUNNER(symbols, Symbols)
