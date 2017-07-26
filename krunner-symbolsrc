@@ -175,6 +175,9 @@ hotbeverage=☕
 anchor=⚓
 crossedswords=⚔
 atom=⚛
+nobreakspace= 
+ndash=–
+mdash=—
 
 # Official Symbols
 trademark=™
