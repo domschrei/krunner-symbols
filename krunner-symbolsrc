@@ -134,6 +134,9 @@ nabla=∇
 infinity=∞
 
 # General Symbols
+nbsp,nobreakspace= 
+ndash,endash=–
+mdash,emdash=—
 bullet=∙
 checkmark=✓
 ballot=✗
