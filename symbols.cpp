@@ -182,40 +182,47 @@ void Symbols::matchUnicode(Plasma::RunnerContext &context)
         QString foundKey = it.key(); // symbol description
      
         // actual relevance and maximum relevance of this match
-        // is being calculated on-the-fly
         float relevance = 0.0f;
         float maxRelevance = 0.0f;
+            
+        // Now iterate over the entered search tokens
+        QListIterator<QString> tokenIt(enteredTokens);
+        while (tokenIt.hasNext()) {
+            QString enteredToken = tokenIt.next();
+            bool someMatch = false;
     
-        // Iterate over all tokens of the unicode symbol description
-        QListIterator<QString> unicodeTokens(foundKey.split(' ', QString::SkipEmptyParts));
-        while (unicodeTokens.hasNext()) {
-            QString unicodeToken = unicodeTokens.next();
-            
-            float newRelevance = 0.0f;
-            
-            // Now iterate over the entered search tokens
-            QListIterator<QString> tokenIt(enteredTokens);
-            while (tokenIt.hasNext()) {
-                QString enteredToken = tokenIt.next();
-        
+            // Iterate over all tokens of the unicode symbol description
+            QListIterator<QString> unicodeTokens(foundKey.split(' ', QString::SkipEmptyParts));
+            while (unicodeTokens.hasNext()) {
+                QString unicodeToken = unicodeTokens.next();
+                        
                 // Depending on the following comparisons,
                 // some relevance heuristic for the found token is being applied
-                // (Only the best match for the found token matters to the final relevance)
                 if (unicodeToken.compare(enteredToken, Qt::CaseInsensitive) == 0) {
                     // exact match between entered token and found token
-                    newRelevance = std::max(newRelevance, 1.0f * enteredToken.length());
+                    relevance += 1.0f * enteredToken.length();
+                    someMatch = true;
                 } else if (unicodeToken.startsWith(enteredToken, Qt::CaseInsensitive)) {
                     // found token begins with entered token
-                    newRelevance = std::max(newRelevance, 0.75f * enteredToken.length());
+                    relevance += 0.5f * enteredToken.length();
+                    someMatch = true;
                 } else if (unicodeToken.contains(enteredToken, Qt::CaseInsensitive)) {
                     // found token contains entered token
-                    newRelevance = std::max(newRelevance, 0.5f * enteredToken.length());
+                    relevance += 0.25f * enteredToken.length();
                 }
             }
             
-            relevance += newRelevance;
-            maxRelevance += unicodeToken.length();
+            maxRelevance += enteredToken.length();
+            
+            // Punish if a keyword is not contained in the found description at all
+            if (!someMatch) {
+                relevance -= enteredToken.length();
+            }
         }
+        
+        // Shorter unicode matches should be preferred 
+        // over longer unicode matches with the same relevance
+        relevance *= enteredKey.length() / ((float) foundKey.length());
         
         // Some relevance means that there is a (partial) match
         if (relevance > 0) {
@@ -232,15 +239,11 @@ void Symbols::matchUnicode(Plasma::RunnerContext &context)
                 Plasma::QueryMatch match(this);
                 // decide whether this is an exact match or just a possible match
                 if (relevance >= 1.0f - 0.0001) {
-                    // if there is an exact match and the search term is longer
-                    // than nessessary, the relevance will be decreased
-                    relevance *= ((float) foundKey.length()) / enteredKey.length();
-                    if (relevance >= 1.0f - 0.0001) {
-                        match.setType(Plasma::QueryMatch::ExactMatch);
-                    } else {
-                        match.setType(Plasma::QueryMatch::PossibleMatch);
-                    }
+                    match.setType(Plasma::QueryMatch::ExactMatch);
+                } else {
+                    match.setType(Plasma::QueryMatch::PossibleMatch);
                 }
+                
                 match.setText(result);
                 match.setSubtext("[" + foundKey + "]");
                 match.setData("symbol");
