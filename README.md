@@ -39,7 +39,7 @@ sudo zypper install cmake extra-cmake-modules libQt5Widgets5 libQt5Core5 libqt5-
 Installing the following packages works on Kubuntu 16.04.1 LTS:
 
 ``` 
-sudo apt-get install cmake extra-cmake-modules build-essential libkf5runner-dev libkf5textwidgets-dev
+sudo apt-get install cmake extra-cmake-modules build-essential libkf5runner-dev libkf5textwidgets-dev qtdeclarative5-dev
 ```
 
 
