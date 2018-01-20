@@ -25,6 +25,7 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QRegExp>
+#include <QTextCodec>
 
 #include "symbols.h"
 
@@ -229,11 +230,22 @@ void Symbols::matchUnicode(Plasma::RunnerContext &context)
             
             // Try to transform the value of the found object into a unicode symbol
             bool ok;
-            const unsigned int parsedValue = it.value().toUInt(&ok, 16);
+            QString resultStr = it.value();
+            unsigned int parsedValue = resultStr.toUInt(&ok, 16);
+            
             if (ok) {
-
                 QString result = QChar(parsedValue);
                 relevance = (relevance / maxRelevance);
+                
+                // Special treatment for symbols longer than 4 hex characters
+                if (resultStr.length() > 4) {
+                    while (resultStr.length() % 4 != 0) {
+                        resultStr = "0" + resultStr;
+                    }
+                    QByteArray arr = QByteArray::fromHex(qPrintable(resultStr));
+                    QTextCodec *codec = QTextCodec::codecForName("UTF-32BE");
+                    result = codec->toUnicode(arr);
+                }
                 
                 // create match object
                 Plasma::QueryMatch match(this);
