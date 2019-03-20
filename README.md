@@ -35,7 +35,7 @@ Arch Linux users can just install the `plasma5-runners-symbols` [package from AU
 Installing the following dependencies should suffice for Debian and Ubuntu installations with the KDE Plasma desktop:
 
 ``` 
-sudo apt install cmake extra-cmake-modules build-essential libkf5runner-dev libkf5textwidgets-dev qtdeclarative5-dev
+sudo apt install cmake extra-cmake-modules build-essential libkf5runner-dev libkf5textwidgets-dev qtdeclarative5-dev gettext
 ```
 
 ### openSUSE
