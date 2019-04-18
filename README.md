@@ -46,6 +46,14 @@ For openSUSE Tumbleweed, these dependencies are sufficient:
 sudo zypper install cmake extra-cmake-modules libQt5Widgets5 libQt5Core5 libqt5-qtlocation-devel ki18n-devel ktextwidgets-devel kservice-devel krunner-devel gettext-tools
 ```
 
+### Fedora
+
+Try these packages on Fedora (29):
+
+```
+sudo dnf install cmake extra-cmake-modules kf5-ki18n-devel kf5-kservice-devel kf5-krunner-devel kf5-ktextwidgets-devel gettext
+```
+
 ## Usage
 
 Open krunner and enter the keyword for what you want to copy. Click on the desired entry tagged with *Symbols* or press Enter while focusing it (navigating with arrow keys). krunner disappears and the result has been copied to your clipboard. With `Ctrl+V`, you can paste it anywhere.
