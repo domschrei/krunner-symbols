@@ -27,11 +27,10 @@ class Symbols : public Plasma::AbstractRunner
 
 public:
     Symbols(QObject *parent, const QVariantList &args);
-    ~Symbols();
+    ~Symbols() override = default;
 
-    void match(Plasma::RunnerContext &);
-    void run(const Plasma::RunnerContext &, const Plasma::QueryMatch &);
-    
+    void match(Plasma::RunnerContext &) override;
+    void run(const Plasma::RunnerContext &, const Plasma::QueryMatch &) override;
 private:
     QMap<QString, QString> symbols;
     QMap<QString, QString> unicodeSymbols;

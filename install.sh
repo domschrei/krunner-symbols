@@ -8,8 +8,8 @@ mkdir -p build
 cd build
 
 # Build the plugin
-cmake .. -DCMAKE_INSTALL_PREFIX=`kf5-config --prefix` -DQT_PLUGIN_INSTALL_DIR=`kf5-config --qt-plugins`
-make 
+cmake .. -DCMAKE_INSTALL_PREFIX=`kf5-config --prefix` -DQT_PLUGIN_INSTALL_DIR=`kf5-config --qt-plugins` -DCMAKE_BUILD_TYPE=Release
+make -j$(nproc)
 # Install the plugin (root access because it has to write into /usr)
 sudo make install
 
