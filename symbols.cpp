@@ -54,7 +54,6 @@ Symbols::Symbols(QObject *parent, const QVariantList &args)
     loadConfig();
 }
 
-Symbols::~Symbols() {}
 
 void Symbols::loadConfig() {
     
@@ -279,6 +278,8 @@ void Symbols::matchUnicode(Plasma::RunnerContext &context)
 void Symbols::run(const Plasma::RunnerContext &context, const Plasma::QueryMatch &match)
 {
     Q_UNUSED(context);
+// Otherwise compiler shows warning that the results of the system() call is ignored
+#pragma GCC diagnostic ignored "-Wunused-result"
 
     if (match.data().toString().compare("open") == 0)
     {
@@ -299,6 +300,7 @@ void Symbols::run(const Plasma::RunnerContext &context, const Plasma::QueryMatch
         // Copy the result to clipboard
         QApplication::clipboard()->setText(match.text());
     }
+#pragma GCC diagnostic pop
 }
 
 /*
