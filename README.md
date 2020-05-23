@@ -2,53 +2,49 @@
 
 A little krunner plugin (Plasma 5) to retrieve unicode symbols, or any other string, based on a corresponding keyword.
 
-![Demonstration](https://raw.githubusercontent.com/domschrei/krunner-symbols/master/img/demonstration1.png)
+![Demonstration "lambda"](https://raw.githubusercontent.com/domschrei/krunner-symbols/master/img/demonstration1.png)
 
 E.g. you can type `lambda` and krunner will yield the proper unicode symbol λ. It can be used to quickly get a symbol when writing some text, or to retrieve often-needed texts (or links, or emotes ...) by typing a certain abbreviation.
 
-![Demonstration](https://raw.githubusercontent.com/domschrei/krunner-symbols/master/img/demonstration2.png)
-![Demonstration](https://raw.githubusercontent.com/domschrei/krunner-symbols/master/img/demonstration3.png)
+![Demonstration "loremipsum"](https://raw.githubusercontent.com/domschrei/krunner-symbols/master/img/demonstration2.png)
+![Demonstration "fliptable"](https://raw.githubusercontent.com/domschrei/krunner-symbols/master/img/demonstration3.png)
 
-If desired, the plugin supports to search the full Unicode database. It is also possible to let the plugin open some file or URL or to execute some command when selecting a result. 
+By default, the plugin searches the full Unicode database for potential matches. It is also possible to let the plugin open some file or URL or to execute some command when selecting a result. 
 
-![Demonstration](https://raw.githubusercontent.com/domschrei/krunner-symbols/master/img/demonstration4.png)
-![Demonstration](https://raw.githubusercontent.com/domschrei/krunner-symbols/master/img/demonstration5.png)
+![Demonstration "kde"](https://raw.githubusercontent.com/domschrei/krunner-symbols/master/img/demonstration4.png)
+![Demonstration "snooze"](https://raw.githubusercontent.com/domschrei/krunner-symbols/master/img/demonstration5.png)
 
 The definitions for all these use cases can be freely configured (see *Configuration*).
 
 ## Installation
 
-Quick Install:
+**Quick install** after installing the required depencencies (see below):
 
 ```
 git clone https://github.com/domschrei/krunner-symbols.git; cd krunner-symbols; bash install.sh
 ```
 
-This executes the plugin's install script inside the `krunner-symbols` directory. You will be prompted for `sudo` after a successful build because some files need to be written into `/usr`. Some dependencies are required, see below for your distribution. If your distribution is not listed and you get an error, the output from `make` will tell you which package is missing.
+This executes the plugin's install script inside the `krunner-symbols` directory. You will be prompted for `sudo` after a successful build because some files need to be written into `/usr`. Some dependencies are required, see below for your distribution. If your distribution is not listed and you get an error, the output from `cmake` will give an indication for which package is missing.
 
-### Arch Linux 
+**Arch Linux**
 
-Arch Linux users can just install the `plasma5-runners-symbols` [package from AUR](https://aur.archlinux.org/packages/plasma5-runners-symbols/ "link to AUR package"), which is based on the most recent release here on Github.
+`sudo pacman -S ki18n krunner qt5-base cmake extra-cmake-modules`
 
-### Debian / Ubuntu
+_Arch Linux users can also install the `plasma5-runners-symbols` [package from AUR](https://aur.archlinux.org/packages/plasma5-runners-symbols/ "link to AUR package"), but it is not necessarily up to date._
 
-Installing the following dependencies should suffice for Debian and Ubuntu installations with the KDE Plasma desktop:
+**Debian / Ubuntu**
 
 ``` 
 sudo apt install cmake extra-cmake-modules build-essential libkf5runner-dev libkf5textwidgets-dev qtdeclarative5-dev gettext
 ```
 
-### openSUSE
-
-For openSUSE Tumbleweed, these dependencies are sufficient:
+**openSUSE**
 
 ```
 sudo zypper install cmake extra-cmake-modules libQt5Widgets5 libQt5Core5 libqt5-qtlocation-devel ki18n-devel ktextwidgets-devel kservice-devel krunner-devel gettext-tools
 ```
 
-### Fedora
-
-Try these packages on Fedora (29):
+**Fedora**
 
 ```
 sudo dnf install cmake extra-cmake-modules kf5-ki18n-devel kf5-kservice-devel kf5-krunner-devel kf5-ktextwidgets-devel gettext
@@ -58,11 +54,13 @@ sudo dnf install cmake extra-cmake-modules kf5-ki18n-devel kf5-kservice-devel kf
 
 Open krunner and enter the keyword for what you want to copy. Click on the desired entry tagged with *Symbols* or press Enter while focusing it (navigating with arrow keys). krunner disappears and the result has been copied to your clipboard. With `Ctrl+V`, you can paste it anywhere.
 
+Use double quotation marks to enclose a string with empty spaces that you want to match exactly. Otherwise, inexact matches will be shown as well based on a simple heuristic.
+
 You can use the plugin as some more general form of alias-resolver (i.e. entering some keyword in order to get the corresponding text) and as a general shortcut app by editing the configuration file appropriately.
 
 ## Configuration
 
-**TL;DR:** Look at the file `krunner-symbolsrc` and you will get the idea. Store custom stuff in `~/.config/krunner-symbolsrc`. Don't forget to activate full Unicode support if you want it!
+**TL;DR:** Look at the file `krunner-symbolsrc` and you will get the idea. Store custom stuff in `~/.config/krunner-symbolsrc`.
 
 Additional to the primary source `/usr/share/config/krunner-symbolsrc`, you can create a second file `~/.config/krunner-symbolsrc` for custom, additional definitions. Those definitions will override those inside the global config, so that you can give a new meaning to globally defined symbols, if you wish. Keep in mind that you will have to restart krunner (`kquitapp krunner && krunner`) for configuration changes to take effect.
 
@@ -107,14 +105,14 @@ If selected, the plugin will try to open or execute the specified location or co
 
 ### Unicode Support
 
-This plugin now supports the Unicode database, i.e. [all symbols inside the official UnicodeData.txt](http://www.unicode.org/Public/UCD/latest/ucd/UnicodeData.txt) can be retrieved by entering (parts of) the corresponding description for the symbol. At the moment this feature is disabled by default because there is some performance overhead of searching all the unicode domain, and you can enable it by setting `UseUnicodeDatabase` to `true` inside the `[Preferences]` group of your config file (and then restarting `krunner`):
+This plugin supports the Unicode database, i.e. [all symbols inside the official UnicodeData.txt](http://www.unicode.org/Public/UCD/latest/ucd/UnicodeData.txt) can be retrieved by entering (parts of) the corresponding description for the symbol. This feature is enabled by default, however there is some performance overhead of searching all the unicode domain that may be noticeable on weaker systems. You can disable it by setting `UseUnicodeDatabase` to `false` inside the `[Preferences]` group of your config file (and then restarting `krunner`):
 
 ```
 [Preferences]
-UseUnicodeDatabase=true
+UseUnicodeDatabase=false
 ```
 
-This very large database also contains a lot of emojis and pictograms (try `thumbs up`, `cat face` or `snowman`).
+This large database also contains a lot of emojis and pictograms (try `thumbs up`, `cat face` or `snowman`).
 
 ## Remarks
 
