@@ -9,7 +9,7 @@
 
 [Preferences]
 
-UseUnicodeDatabase=false
+UseUnicodeDatabase=true
 
 
 [Definitions]
