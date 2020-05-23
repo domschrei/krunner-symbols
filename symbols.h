@@ -37,10 +37,18 @@ private:
     QMap<QString, QVariant> prefs;
     
     void loadConfig();
+
+    void matchSymbols(Plasma::RunnerContext&);
     void matchUnicode(Plasma::RunnerContext&);
+
+    std::pair<std::vector<QString>, std::vector<QString>> getExactAndInexactTokens(const QString& entered, int& inputLength);
+    float getRelevance(const std::vector<QString>& enteredExact,
+                       const std::vector<QString>& enteredInexact,
+                       int inputLength, const QString& found);
+    Plasma::QueryMatch getMatchObject(const QString& text, const QString& subtext, float relevance);
     
     // helper methods
-    void mergeMapsOverriding(QMap<QString, QString> *overriddenMap, QMap<QString, QString> *overridingMap);
+    void mergeMapsOverriding(QMap<QString, QString>& overriddenMap, QMap<QString, QString>& overridingMap);
     void expandMultiDefinitions();
 };
 

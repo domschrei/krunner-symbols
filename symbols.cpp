@@ -54,7 +54,6 @@ Symbols::Symbols(QObject *parent, const QVariantList &args)
     loadConfig();
 }
 
-
 void Symbols::loadConfig() {
     
     // Global configuration (meant to be immutable by user)
@@ -67,7 +66,7 @@ void Symbols::loadConfig() {
     QMap<QString, QString> globalDefMap = globalDefGroup.entryMap();
     KConfigGroup localDefGroup(&localConfig, "Definitions");
     QMap<QString, QString> localDefMap = localDefGroup.entryMap();
-    mergeMapsOverriding(&globalDefMap, &localDefMap);
+    mergeMapsOverriding(globalDefMap, localDefMap);
     symbols = localDefMap;
     
     // Find and change definitions of the form "a,b,c=d"
@@ -79,7 +78,7 @@ void Symbols::loadConfig() {
     QMap<QString, QString> globalPrefMap = globalPrefGroup.entryMap();
     KConfigGroup localPrefGroup(&localConfig, "Preferences");
     QMap<QString, QString> localPrefMap = localPrefGroup.entryMap();
-    mergeMapsOverriding(&globalPrefMap, &localPrefMap);
+    mergeMapsOverriding(globalPrefMap, localPrefMap);
     QMap<QString, QString> prefMap = localPrefMap;
     
     // UseUnicodeDatabase: Default true
@@ -95,42 +94,46 @@ void Symbols::loadConfig() {
     }
 }
 
-void Symbols::match(Plasma::RunnerContext &context)
-{
+void Symbols::match(Plasma::RunnerContext &context) {
     if (!context.isValid()) return;
 
+    // Match against symbols from (global & local) configuration
+    matchSymbols(context);
+
+    if (prefs.value("UseUnicodeDatabase").toBool()) {
+        // Also look for fitting unicode symbols (only if not disabled by preferences)
+        matchUnicode(context);
+    }
+}
+
+void Symbols::matchSymbols(Plasma::RunnerContext &context) {
+
     const QString enteredKey = context.query();
+
+    // Split query into tokens, exact (in quotations) and inexact,
+    // and get maximum relevance number any match could possibly have
+    int inputLength = 0;
+    auto pair = getExactAndInexactTokens(enteredKey, inputLength);
+    std::vector<QString> exactEnteredTokens = pair.first;
+    std::vector<QString> inexactEnteredTokens = pair.second;
+
+    QList<Plasma::QueryMatch> matches;    
     
-    QList<Plasma::QueryMatch> matches;
+    // Search symbols from database
     QMapIterator<QString, QString> it(symbols);
-    
-    // Add matches for every keyword that equals the query
-    // or that the query could be completed to
     while (it.hasNext()) {
-      
         it.next();
         QString foundKey = it.key();
         
-        if (foundKey.startsWith(enteredKey))
-        {
+        // Check relevance of key
+        float relevance = getRelevance(exactEnteredTokens, inexactEnteredTokens, inputLength, foundKey);
+        if (relevance > 0) {
+
             // We have a match
-            Plasma::QueryMatch match(this);
+            Plasma::QueryMatch match = getMatchObject(it.value(), "[" + foundKey + "]", relevance);
         
-            if (foundKey.length() == enteredKey.length()) {
-                // the query equals the keyword -> exact match
-                match.setType(Plasma::QueryMatch::ExactMatch);
-            } else {
-                // the query is a (non-complete) prefix of the keyword 
-                // -> completion match
-                match.setType(Plasma::QueryMatch::CompletionMatch);
-            }
-            // also show the exact keyword for this value
-            match.setText(it.value());
-            match.setSubtext("[" + foundKey + "]");
-            
             // Check if the result is a command ("open:" or "exec:")
-            if (it.value().startsWith("open:"))
-            {
+            if (it.value().startsWith("open:")) {
                 match.setText(match.text().replace("open:", "→ "));
                 match.setData("open");
             } else if (it.value().startsWith("exec:")) {
@@ -140,38 +143,30 @@ void Symbols::match(Plasma::RunnerContext &context)
                 match.setData("symbol");
             }
             
-            // Basic properties for the match
-            match.setIcon(QIcon::fromTheme("preferences-desktop-font"));
-            //match.setSubtext(it.value());
-            
-            // The match's relevance gets higher the more "complete" the query string is
-            // (k/x for query length k and keyword length x; 1 for complete keyword)
-            match.setRelevance((float) enteredKey.length() / (float) foundKey.length());
-            
             matches.append(match);
         }
     }   
 
     // Feed the framework with the calculated results
     context.addMatches(matches);
-
-    if (prefs.value("UseUnicodeDatabase").toBool()) {
-        // Also look for fitting unicode symbols (only if not disabled by preferences)
-        matchUnicode(context);
-    }
 }
 
-void Symbols::matchUnicode(Plasma::RunnerContext &context)
-{
-    if (!context.isValid()) return;
+void Symbols::matchUnicode(Plasma::RunnerContext &context) {
+    
     const QString enteredKey = context.query();
     
-    // do not match against searches with less than three characters
-    if (enteredKey.length() < 3) {
+    // do not match against too brief or too large searches
+    if (enteredKey.length() < 3 || enteredKey.length() > 100) {
         return;
     }
     
-    QStringList enteredTokens = enteredKey.split(' ', QString::SkipEmptyParts);
+    // Split query into tokens, exact (in quotations) and inexact,
+    // and get maximum relevance number any match could possibly have
+    int inputLength = 0;
+    auto pair = getExactAndInexactTokens(enteredKey, inputLength);
+    std::vector<QString> exactEnteredTokens = pair.first;
+    std::vector<QString> inexactEnteredTokens = pair.second;
+
     QList<Plasma::QueryMatch> matches;
     
     // Iterate over all available unicode symbols
@@ -179,54 +174,14 @@ void Symbols::matchUnicode(Plasma::RunnerContext &context)
     while (it.hasNext()) {
        
         it.next();
-        QString foundKey = it.key(); // symbol description
+        const QString& foundKey = it.key(); // symbol description
      
-        // actual relevance and maximum relevance of this match
-        float relevance = 0.0f;
-        float maxRelevance = 0.0f;
-            
-        // Now iterate over the entered search tokens
-        QListIterator<QString> tokenIt(enteredTokens);
-        while (tokenIt.hasNext()) {
-            QString enteredToken = tokenIt.next();
-            bool someMatch = false;
-    
-            // Iterate over all tokens of the unicode symbol description
-            QListIterator<QString> unicodeTokens(foundKey.split(' ', QString::SkipEmptyParts));
-            while (unicodeTokens.hasNext()) {
-                QString unicodeToken = unicodeTokens.next();
-                        
-                // Depending on the following comparisons,
-                // some relevance heuristic for the found token is being applied
-                if (unicodeToken.compare(enteredToken, Qt::CaseInsensitive) == 0) {
-                    // exact match between entered token and found token
-                    relevance += 1.0f * enteredToken.length();
-                    someMatch = true;
-                } else if (unicodeToken.startsWith(enteredToken, Qt::CaseInsensitive)) {
-                    // found token begins with entered token
-                    relevance += 0.5f * enteredToken.length();
-                    someMatch = true;
-                } else if (unicodeToken.contains(enteredToken, Qt::CaseInsensitive)) {
-                    // found token contains entered token
-                    relevance += 0.25f * enteredToken.length();
-                }
-            }
-            
-            maxRelevance += enteredToken.length();
-            
-            // Punish if a keyword is not contained in the found description at all
-            if (!someMatch) {
-                relevance -= enteredToken.length();
-            }
-        }
-        
-        // Shorter unicode matches should be preferred 
-        // over longer unicode matches with the same relevance
-        relevance *= enteredKey.length() / ((float) foundKey.length());
+        // Calculate relevance of this match
+        float relevance = getRelevance(exactEnteredTokens, inexactEnteredTokens, inputLength, foundKey);
         
         // Some relevance means that there is a (partial) match
         if (relevance > 0) {
-            
+             
             // Try to transform the value of the found object into a unicode symbol
             bool ok;
             QString resultStr = it.value();
@@ -234,7 +189,7 @@ void Symbols::matchUnicode(Plasma::RunnerContext &context)
             
             if (ok) {
                 QString result = QChar(parsedValue);
-                relevance = (relevance / maxRelevance);
+                relevance = (relevance / inputLength);
                 
                 // Special treatment for symbols longer than 4 hex characters
                 if (resultStr.length() > 4) {
@@ -247,20 +202,8 @@ void Symbols::matchUnicode(Plasma::RunnerContext &context)
                 }
                 
                 // create match object
-                Plasma::QueryMatch match(this);
-                // decide whether this is an exact match or just a possible match
-                if (relevance >= 1.0f - 0.0001) {
-                    match.setType(Plasma::QueryMatch::ExactMatch);
-                } else {
-                    match.setType(Plasma::QueryMatch::PossibleMatch);
-                }
-                
-                match.setText(result);
-                match.setSubtext("[" + foundKey + "]");
+                Plasma::QueryMatch match = getMatchObject(result, "[" + foundKey + "]", relevance);
                 match.setData("symbol");
-                match.setIcon(QIcon::fromTheme("preferences-desktop-font"));
-                match.setRelevance(relevance);
-                
                 matches.append(match);  
             }
         }
@@ -270,33 +213,140 @@ void Symbols::matchUnicode(Plasma::RunnerContext &context)
     context.addMatches(matches);
 }
 
+std::pair<std::vector<QString>, std::vector<QString>> Symbols::getExactAndInexactTokens(
+        const QString& entered, 
+        int& inputLength) {
+
+    std::vector<QString> exactEnteredTokens;
+    std::vector<QString> inexactEnteredTokens;
+    QString exactToken = "";
+    QString inexactToken = "";
+    bool exact = false;
+    inputLength = 0;
+    for (int pos = 0; pos < entered.length(); pos++) {
+        const QChar c = entered[pos];
+        if (c == '"') {
+            // Opening or closing quotation
+            if (exact) {
+                // Closing quotation
+                exactEnteredTokens.push_back(exactToken);
+                exactToken = "";
+                exact = false;
+            } else exact = true;
+        } else if (c == ' ' && !exact) {
+            // space outside exact token
+            if (inexactToken.length() > 0) {
+                inexactEnteredTokens.push_back(inexactToken);
+                inexactToken = "";
+            }
+        } else {
+            if (exact) {
+                exactToken += c;
+            } else {
+                inexactToken += c;
+            }
+            inputLength++;
+        }
+    }
+    if (exactToken.length() > 0) exactEnteredTokens.push_back(exactToken);
+    if (inexactToken.length() > 0) inexactEnteredTokens.push_back(inexactToken);
+
+    return std::pair<std::vector<QString>, std::vector<QString>>(exactEnteredTokens, inexactEnteredTokens);
+}
+
+float Symbols::getRelevance(const std::vector<QString>& enteredExact,
+                       const std::vector<QString>& enteredInexact, 
+                       int inputLength, const QString& found) {
+
+    float relevance = 0;
+
+    // Iterate over the entered inexact (normal) entered search tokens
+    for (const QString& enteredToken : enteredInexact) {
+        bool someMatch = false;
+
+        // Iterate over all tokens of the found symbol description
+        QListIterator<QString> unicodeTokens(found.split(' ', QString::SkipEmptyParts));
+        while (unicodeTokens.hasNext()) {
+            const QString& foundToken = unicodeTokens.next();
+
+            // Depending on the following comparisons,
+            // some relevance for the found token is added
+            if (foundToken.compare(enteredToken, Qt::CaseInsensitive) == 0) {
+                // exact match between entered token and found token
+                relevance += 1.0f * enteredToken.length();
+                someMatch = true;
+            } else if (foundToken.startsWith(enteredToken, Qt::CaseInsensitive)) {
+                // found token begins with entered token
+                relevance += 0.5f * enteredToken.length();
+                someMatch = true;
+            } else if (foundToken.contains(enteredToken, Qt::CaseInsensitive)) {
+                // found token contains entered token
+                relevance += 0.25f * enteredToken.length();
+                someMatch = true;
+            }
+        }
+        
+        // Punish if a keyword is not contained in the found description at all
+        if (!someMatch) {
+            relevance -= 2 * enteredToken.length();
+        }
+    }
+    
+    // Iterate over the exact search tokens
+    for (const QString& enteredToken : enteredExact) {
+        if (found.contains(enteredToken, Qt::CaseInsensitive)) {
+            // Entered token exactly matches (partial) symbol description
+            relevance += enteredToken.length();
+        } else {
+            // No exact match: drop found key
+            relevance = 0;
+            break;
+        }
+    }
+
+    // Shorter unicode matches should be preferred 
+    // over longer unicode matches with the same relevance
+    return relevance * inputLength / found.length();
+}
+
+Plasma::QueryMatch Symbols::getMatchObject(const QString& text, const QString& subtext, float relevance) {
+
+    Plasma::QueryMatch match(this);
+
+    // decide whether this is an exact match or just a possible match
+    match.setType(relevance >= 0.999f ? Plasma::QueryMatch::ExactMatch : Plasma::QueryMatch::PossibleMatch);
+    
+    match.setText(text);
+    if (subtext.length() > 0) match.setSubtext(subtext);
+    match.setIcon(QIcon::fromTheme("preferences-desktop-font"));
+    match.setRelevance(relevance);
+
+    return match;
+}
+
 /**
  * Perform an action when a user chooses one of the previously found matches.
- * Either some string gets copied to the clipboard, a file/path/URL is being opened, 
- * or a command is being executed.
+ * Either some string is copied to the clipboard, a file/path/URL is opened, 
+ * or a command is executed.
  */
-void Symbols::run(const Plasma::RunnerContext &context, const Plasma::QueryMatch &match)
-{
+void Symbols::run(const Plasma::RunnerContext &context, const Plasma::QueryMatch &match) {
     Q_UNUSED(context);
 // Otherwise compiler shows warning that the results of the system() call is ignored
 #pragma GCC diagnostic ignored "-Wunused-result"
 
-    if (match.data().toString().compare("open") == 0)
-    {
+    if (match.data().toString().compare("open") == 0) {
         // Open a file or a URL in a (file/web) browser
         // (in a new process, so that krunner doesn't get stuck while opening the path)
         string command = "kde-open " + match.text().remove("→ ").toStdString() + " &";
         system(command.c_str());
         
-    } else if (match.data().toString().compare("execute") == 0) 
-    {
+    } else if (match.data().toString().compare("execute") == 0) {
         // Execute a command
         // (in a new process, so that krunner doesn't get stuck while opening the path)
         string command = match.text().remove(">_ ").toStdString() + " &";
         system(command.c_str());
         
-    } else 
-    {
+    } else {
         // Copy the result to clipboard
         QApplication::clipboard()->setText(match.text());
     }
@@ -308,12 +358,12 @@ void Symbols::run(const Plasma::RunnerContext &context, const Plasma::QueryMatch
  * whereas an entry of the overriding map will be preferred (and the overridden map's 
  * one will be ignored) in case of duplicate keys.
  */
-void Symbols::mergeMapsOverriding(QMap<QString, QString> *overriddenMap, QMap<QString, QString> *overridingMap) {
-    QMapIterator<QString,QString> it(*overriddenMap);
+void Symbols::mergeMapsOverriding(QMap<QString, QString>& overriddenMap, QMap<QString, QString>& overridingMap) {
+    QMapIterator<QString,QString> it(overriddenMap);
     while (it.hasNext()) {
         it.next();
-        if (!overridingMap->contains(it.key())) {
-            overridingMap->insert(it.key(), it.value());
+        if (!overridingMap.contains(it.key())) {
+            overridingMap.insert(it.key(), it.value());
         }
     }
 }
