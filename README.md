@@ -27,7 +27,7 @@ There are two ways to install the plugin in packaged form (i.e., without buildin
 
 Use the latest .deb package:
 
-`wget https://github.com/domschrei/krunner-symbols/releases/download/1.1.0/krunner-symbols-1.1.0-debian.deb && sudo dpkg -i krunner-symbols-*.deb`
+`wget https://github.com/domschrei/krunner-symbols/releases/download/1.1.0/krunner-symbols-1.1.0.deb && sudo dpkg -i krunner-symbols-1.1.0.deb`
 
 ### Generic Linux
 
@@ -58,7 +58,7 @@ This executes the plugin's install script inside the `krunner-symbols` directory
 
 `sudo pacman -S ki18n krunner qt5-base cmake extra-cmake-modules`
 
-_Note that there is a `plasma5-runners-symbols` [package from AUR](https://aur.archlinux.org/packages/plasma5-runners-symbols/ "link to AUR package"), but it is unfortunately not kept up to date as of now._
+_Note that there is a `plasma5-runners-symbols` [package from AUR](https://aur.archlinux.org/packages/plasma5-runners-symbols/ "link to AUR package"), but it is unfortunately not kept up to date._
 
 **Debian / Ubuntu**
 

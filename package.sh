@@ -3,6 +3,11 @@
 # Exit immediately if something fails
 set -e
 
+if [ -z "$1" ]; then
+    echo "Usage: $0 [debian|generic]"
+    exit 1
+fi
+
 # Set up clean build directory
 mkdir build 2> /dev/null || rm -rf build/*
 cd build
@@ -13,15 +18,15 @@ vmajor=$(echo $version|awk '{print $1}')
 vminor=$(echo $version|awk '{print $2}')
 vpatch=$(echo $version|awk '{print $3}')
 
-package_flat_files=true
-if $package_flat_files; then
+if [ "$1" == "generic" ]; then
+    # Build generic "flat" package to be installed via install.sh
 
     # Build the plugin in the build/ directory without any folder hierarchy
     cmake .. -DLOCATION_PLUGIN=. -DLOCATION_DESKTOP=. -DLOCATION_CONFIG=. \
     -DCMAKE_BUILD_TYPE=Release
     make -j$(nproc)
     
-    # Package the plugin locally from the build/ directory
+    # Package the plugin
     make package
 
     # Copy files from build directory
@@ -33,9 +38,11 @@ if $package_flat_files; then
     echo "======================================"
     echo "Package created successfully: $outfile"
     echo "Install package by executing <bash install.sh> in this directory."
+    echo
 
-    
 else
+    # Build DEB package
+
     # Get correct installation directories: relative paths without leading prefix.
     prefix=$(kf5-config --prefix) 
     loc_plugin=$(kf5-config --qt-plugins|sed 's.^'"$prefix"'/..')
@@ -50,6 +57,16 @@ else
     -DCMAKE_BUILD_TYPE=Release
     make -j$(nproc)
     
+    # Package the plugin
     make package
-    cp krunner-symbols-*.deb ..
+    
+    # Copy file from build directory
+    outfile="krunner-symbols-$vmajor.$vminor.$vpatch.deb"
+    cp "$outfile" ..
+    
+    echo
+    echo "======================================"
+    echo "Package created successfully: $outfile"
+    echo "Install package by executing <sudo dpkg -i $outfile>."
+    echo
 fi

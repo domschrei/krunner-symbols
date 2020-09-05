@@ -20,6 +20,7 @@ cd build
 version=$(grep X-KDE-PluginInfo-Version plasma-runner-symbols.desktop|grep -oE '[0-9]+\..*\..*')
 
 # Install files
+echo "Installing plugin files into system directories ..."
 sudo cp krunner_symbols.so "$loc_plugin"/
 sudo cp plasma-runner-symbols.desktop "$loc_desktop"/
 sudo mkdir -p "$loc_config"
