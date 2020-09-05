@@ -9,6 +9,17 @@ set (CMAKE_MODULE_PATH
 find_package (Qt5 ${QT_MIN_VERSION} REQUIRED CONFIG COMPONENTS Widgets Core Quick)
 find_package (KF5 ${KF5_MIN_VERSION} REQUIRED COMPONENTS I18n Service Runner TextWidgets PlasmaQuick)
 
+set(CPACK_PACKAGE_NAME "krunner-symbols")
+set(CPACK_PACKAGE_VENDOR "dominikschreiber.de")
+set(CPACK_GENERATOR "STGZ")
+set(CPACK_VERBATIM_VARIABLES true)
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Plugin for Plasma 5 krunner to retrieve arbitrary symbols or macros")
+set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_SOURCE_DIR}/README.md")
+set(CPACK_RESOURCE_FILE_WELCOME "${CMAKE_SOURCE_DIR}/README.md")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
+set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
+include(CPack)
+
 include(KDEInstallDirs)
 include(KDECMakeSettings)
 include(KDECompilerSettings NO_POLICY_SCOPE)
