@@ -33,7 +33,7 @@ Use the latest .deb package:
 
 Use this script (which fetches the latest release package files):
 
-`curl https://github.com/domschrei/krunner-symbols/blob/master/install.sh | bash`
+`curl https://raw.githubusercontent.com/domschrei/krunner-symbols/master/install.sh | bash`
 
 ### Uninstallation
 
