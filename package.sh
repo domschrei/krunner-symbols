@@ -31,4 +31,4 @@ cp $outfile ..
 cd ..
 
 echo "You can now install the plugin with the following command:"
-echo sudo bash $outfile --prefix=$install_prefix --exclude-subdir --skip-license
+echo sudo bash $outfile --prefix=$install_prefix --exclude-subdir --skip-license && bash restart-krunner.sh
