@@ -1,17 +1,31 @@
 #!/bin/bash
 
-# Exit immediately if something fails
 set -e
 
-# Setup build directory
+# Get correct distro-dependent installation directories 
+loc_plugin=$(kf5-config --qt-plugins)
+loc_desktop=$(kf5-config --path services|awk -F ':' '{print $NF}')
+loc_config=$(kf5-config --prefix)/share/config
+
+# Fetch and unpack packaged files
+if [ ! -f krunner-symbols-*-Linux.tar.gz ]; then
+    wget https://github.com/domschrei/krunner-symbols/releases/download/1.1.0/krunner-symbols-1.1.0-Linux.tar.gz
+fi
+pkg=$(echo krunner-symbols-*-Linux.tar.gz|awk '{print $NF}')
 mkdir -p build
+tar xzvf "$pkg" -C build --strip-components=1
 cd build
 
-# Build the plugin
-cmake .. -DCMAKE_INSTALL_PREFIX=`kf5-config --prefix` -DKDE_INSTALL_QTPLUGINDIR=`kf5-config --qt-plugins` -DCMAKE_BUILD_TYPE=Release
-make -j$(nproc)
-# Install the plugin (root access because it has to write into /usr)
-sudo make install
+# Fetch current version
+version=$(grep X-KDE-PluginInfo-Version plasma-runner-symbols.desktop|grep -oE '[0-9]+\..*\..*')
 
-# Restart krunner
-bash ../restart-krunner.sh
+# Install files
+sudo cp krunner_symbols.so "$loc_plugin"/
+sudo cp plasma-runner-symbols.desktop "$loc_desktop"/
+sudo mkdir -p "$loc_config"
+sudo cp krunner-symbolsrc krunner-symbols-full-unicode-index "$loc_config/"
+
+echo "Installation successful. Restarting krunner for the changes to take effect."
+if pgrep -x krunner > /dev/null; then
+    killall krunner
+fi

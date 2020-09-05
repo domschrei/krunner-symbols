@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Script executed after installing via dpkg.
+
 # Small utility to kill krunner (and, by extension, restart it with updated plugins). 
 # Thankfully taken from https://github.com/alex1701c/krunner-vscodeprojects/blob/master/postinst
 

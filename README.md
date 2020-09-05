@@ -1,4 +1,6 @@
+
 # krunner-symbols
+
 
 A little krunner plugin (Plasma 5) to retrieve unicode symbols, or any other string, based on a corresponding keyword.
 
@@ -16,21 +18,47 @@ By default, the plugin searches the full Unicode database for potential matches.
 
 The definitions for all these use cases can be freely configured (see *Configuration*).
 
+
 ## Installation
 
-**Quick install** after installing the required depencencies (see below):
+There are two ways to install the plugin in packaged form (i.e., without building it yourself).
+
+### Debian-based
+
+Use the latest .deb package:
+
+`wget https://github.com/domschrei/krunner-symbols/releases/download/1.1.0/krunner-symbols-1.1.0-debian.deb && sudo dpkg -i krunner-symbols-*.deb`
+
+### Generic Linux
+
+Use this script (which fetches the latest release package files):
+
+`curl https://github.com/domschrei/krunner-symbols/blob/master/install.sh | bash`
+
+### Uninstallation
+
+For uninstalling the plugin, use `apt` if you installed via .deb:
+
+`sudo apt remove krunner-symbols`
+
+and use the script `uninstall.sh` if you installed via the generic script.
+
+
+## Building
+
+**Quick build and install** after installing the required depencencies (see below):
 
 ```
-git clone https://github.com/domschrei/krunner-symbols.git; cd krunner-symbols; bash install.sh
+git clone https://github.com/domschrei/krunner-symbols.git; cd krunner-symbols; bash build_and_install.sh
 ```
 
-This executes the plugin's install script inside the `krunner-symbols` directory. You will be prompted for `sudo` after a successful build because some files need to be written into `/usr`. Some dependencies are required, see below for your distribution. If your distribution is not listed and you get an error, the output from `cmake` will give an indication for which package is missing.
+This executes the plugin's install script inside the `krunner-symbols` directory. Some dependencies are required, see below for your distribution. If your distribution is not listed and you get an error, the output from `cmake` will give an indication for which package is missing.
 
 **Arch Linux**
 
 `sudo pacman -S ki18n krunner qt5-base cmake extra-cmake-modules`
 
-_Arch Linux users can also install the `plasma5-runners-symbols` [package from AUR](https://aur.archlinux.org/packages/plasma5-runners-symbols/ "link to AUR package"), but it is not necessarily up to date._
+_Note that there is a `plasma5-runners-symbols` [package from AUR](https://aur.archlinux.org/packages/plasma5-runners-symbols/ "link to AUR package"), but it is unfortunately not kept up to date as of now._
 
 **Debian / Ubuntu**
 
@@ -44,6 +72,7 @@ _Arch Linux users can also install the `plasma5-runners-symbols` [package from A
 
 `sudo dnf install cmake extra-cmake-modules kf5-ki18n-devel kf5-kservice-devel kf5-krunner-devel kf5-ktextwidgets-devel gettext qt5-qtdeclarative-devel`
 
+
 ## Usage
 
 Open krunner and enter the keyword for what you want to copy. Click on the desired entry tagged with *Symbols* or press Enter while focusing it (navigating with arrow keys). krunner disappears and the result has been copied to your clipboard. With `Ctrl+V`, you can paste it anywhere.
@@ -52,11 +81,12 @@ Use double quotation marks to enclose a string with empty spaces that you want t
 
 You can use the plugin as some more general form of alias-resolver (i.e. entering some keyword in order to get the corresponding text) and as a general shortcut app by editing the configuration file appropriately.
 
+
 ## Configuration
 
 **TL;DR:** Look at the file `krunner-symbolsrc` and you will get the idea. Store custom stuff in `~/.config/krunner-symbolsrc`.
 
-Additional to the primary source `/usr/share/config/krunner-symbolsrc`, you can create a second file `~/.config/krunner-symbolsrc` for custom, additional definitions. Those definitions will override those inside the global config, so that you can give a new meaning to globally defined symbols, if you wish. Keep in mind that you will have to restart krunner (`kquitapp krunner && krunner`) for configuration changes to take effect.
+Additional to the primary source `/usr/share/config/krunner-symbolsrc`, you can create a second file `~/.config/krunner-symbolsrc` for custom, additional definitions. Those definitions will override those inside the global config, so that you can give a new meaning to globally defined symbols, if you wish. Keep in mind that you will have to restart krunner (`bash restart-krunner.sh`) for configuration changes to take effect.
 
 The syntax is easy (you can just copy from the file `krunner-symbolsrc` from the downloaded git directory). Define custom symbols below a config group called "Definitions":
 ```
@@ -107,6 +137,7 @@ UseUnicodeDatabase=false
 ```
 
 This large database also contains a lot of emojis and pictograms (try `thumbs up`, `cat face` or `snowman`).
+
 
 ## Remarks
 
