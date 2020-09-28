@@ -404,7 +404,7 @@ void Symbols::run(const Plasma::RunnerContext &context, const Plasma::QueryMatch
     } else if (match.data().toString().compare("open") == 0) {
         // Open a file or a URL in a (file/web) browser
         // (in a new process, so that krunner doesn't get stuck while opening the path)
-        string command = "kde-open " + match.text().remove("→ ").toStdString() + " &";
+        string command = "kde-open5 " + match.text().remove("→ ").toStdString() + " &";
         system(command.c_str());
         
     } else if (match.data().toString().compare("execute") == 0) {
