@@ -49,4 +49,4 @@ target_link_libraries(krunner_symbols KF5::Runner Qt5::Widgets KF5::I18n KF5::Se
 install(TARGETS krunner_symbols DESTINATION ${LOCATION_PLUGIN})
 install(FILES plasma-runner-symbols.desktop DESTINATION ${LOCATION_DESKTOP})
 install(FILES krunner-symbolsrc DESTINATION ${LOCATION_CONFIG})
-install(FILES krunner-symbols-full-unicode-index DESTINATION ${LOCATION_CONFIG})
+install(DIRECTORY krunner-symbols-unicode DESTINATION ${LOCATION_CONFIG})

@@ -1,5 +1,5 @@
 /******************************************************************************
- *  Copyright (C) 2016 by Dominik Schreiber <dev@dominikschreiber.de>         *
+ *  Copyright (C) 2016-2020 by Dominik Schreiber <dev@dominikschreiber.de>    *
  *                                                                            *
  *  This library is free software; you can redistribute it and/or modify      *
  *  it under the terms of the GNU General Public License as published         *
@@ -19,20 +19,20 @@
 #include <iostream>
 
 #include <KLocalizedString>
-#include <KConfigCore/KConfig>
-#include <KConfigCore/KConfigGroup>
 
 #include <QApplication>
 #include <QClipboard>
 #include <QRegExp>
 #include <QTextCodec>
+#include <QLocale>
 
 #include "symbols.h"
 
 using namespace std;
 
 Symbols::Symbols(QObject *parent, const QVariantList &args)
-    : Plasma::AbstractRunner(parent, args)
+    : Plasma::AbstractRunner(parent, args), 
+    localConfig("krunner-symbolsrc", KConfig::SimpleConfig)
 {
     Q_UNUSED(args);
     
@@ -57,9 +57,7 @@ Symbols::Symbols(QObject *parent, const QVariantList &args)
 void Symbols::loadConfig() {
     
     // Global configuration (meant to be immutable by user)
-    KConfig globalConfig("/usr/share/config/krunner-symbolsrc");    
-    // Local configuration with custom definitions and preferences
-    KConfig localConfig("krunner-symbolsrc", KConfig::SimpleConfig);
+    KConfig globalConfig("/usr/share/config/krunner-symbolsrc");
     
     // Symbol definitions
     KConfigGroup globalDefGroup(&globalConfig, "Definitions");    
@@ -86,16 +84,65 @@ void Symbols::loadConfig() {
                  (!prefMap.contains("UseUnicodeDatabase")) 
                  || prefMap.value("UseUnicodeDatabase").compare("true") == 0);
     
+    // AlwaysLoadEnglishUnicode: Default false
+    prefs.insert("AlwaysLoadEnglishUnicode",
+                 (prefMap.contains("AlwaysLoadEnglishUnicode"))
+                 && prefMap.value("AlwaysLoadEnglishUnicode").compare("true") == 0);
+    
     // Unicode symbols (only if not disabled by preferences)
     if (prefs.value("UseUnicodeDatabase").toBool()) {
-        KConfig unicodeConfig("/usr/share/config/krunner-symbols-full-unicode-index");
+
+        // Get locale (only the part left of the underscore)
+        QString locale = globalConfig.locale();
+        int idxOfUnderscore = locale.indexOf("_");
+        if (idxOfUnderscore >= 0) {
+            locale = locale.left(idxOfUnderscore);
+        }
+
+        // Try to get Unicode symbols file for that locale
+        QString unicodeConfigBase = "/usr/share/config/krunner-symbols-unicode/unicode_";
+        KConfig unicodeConfig(unicodeConfigBase + locale);
         KConfigGroup unicodeGroup(&unicodeConfig, "Unicode");
+
+        if (!unicodeGroup.exists() || prefs.value("AlwaysLoadEnglishUnicode").toBool()) {
+            // Does not exist: Use default (english) Unicode symbols file
+            KConfig defaultUnicodeConfig(unicodeConfigBase + "en");
+            unicodeGroup = KConfigGroup(&defaultUnicodeConfig, "Unicode");
+            if (!unicodeGroup.exists()) return;
+        }
+
         unicodeSymbols = unicodeGroup.entryMap();
     }
 }
 
 void Symbols::match(Plasma::RunnerContext &context) {
     if (!context.isValid()) return;
+
+    if (context.query().startsWith("sym:", Qt::CaseInsensitive)) {
+
+        QRegExp rx("\\bsym:def (.*)=(.*)\\b");
+        if (rx.indexIn(context.query()) >= 0) {
+            QString key = rx.cap(1).trimmed();
+            QString val = rx.cap(2).trimmed();
+            Plasma::QueryMatch match;
+            QStringList data;
+            match = getMatchObject("Define symbol", "[" + key + "=" + val + "]", 1.0f);
+            data << "def" << key << val;
+            match.setData(data);
+            context.addMatch(match);                        
+        } else {
+            rx = QRegExp("\\bsym:rm (.*)\\b");
+            if (rx.indexIn(context.query()) >= 0 && context.query().indexOf("=") < 0) {
+                QString key = rx.cap(1).trimmed();
+                Plasma::QueryMatch match;
+                QStringList data;
+                match = getMatchObject("Remove symbol", "[" + key + "]", 1.0f);
+                data << "rm" << key;
+                match.setData(data);
+                context.addMatch(match);
+            }
+        }
+    }
 
     // Match against symbols from (global & local) configuration
     matchSymbols(context);
@@ -334,7 +381,27 @@ void Symbols::run(const Plasma::RunnerContext &context, const Plasma::QueryMatch
 // Otherwise compiler shows warning that the results of the system() call is ignored
 #pragma GCC diagnostic ignored "-Wunused-result"
 
-    if (match.data().toString().compare("open") == 0) {
+    if (match.data().canConvert<QStringList>() && match.data().toStringList().size() >= 2) {
+        QStringList list = match.data().toStringList();
+        QString mode = list[0];
+        QString key = list[1];
+        auto localDefs = KConfigGroup(&localConfig, "Definitions");
+        if (QString::compare(mode, "def") == 0) {
+            // Add a new definition
+            QString val = list[2];
+            localDefs.writeEntry(key, val);
+            localDefs.sync();
+            // Reload config
+            loadConfig();
+        } else if (QString::compare(mode, "rm") == 0) {
+             // Remove a definition
+            localDefs.deleteEntry(key);
+            localDefs.sync();
+            // Reload config
+            loadConfig();
+        }
+
+    } else if (match.data().toString().compare("open") == 0) {
         // Open a file or a URL in a (file/web) browser
         // (in a new process, so that krunner doesn't get stuck while opening the path)
         string command = "kde-open " + match.text().remove("→ ").toStdString() + " &";
@@ -345,7 +412,7 @@ void Symbols::run(const Plasma::RunnerContext &context, const Plasma::QueryMatch
         // (in a new process, so that krunner doesn't get stuck while opening the path)
         string command = match.text().remove(">_ ").toStdString() + " &";
         system(command.c_str());
-        
+
     } else {
         // Copy the result to clipboard
         QApplication::clipboard()->setText(match.text());

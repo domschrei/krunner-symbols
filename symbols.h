@@ -1,5 +1,5 @@
 /******************************************************************************
- *  Copyright (C) 2016 by Dominik Schreiber <dev@dominikschreiber.de>         *
+ *  Copyright (C) 2016-2020 by Dominik Schreiber <dev@dominikschreiber.de>    *
  *                                                                            *
  *  This library is free software; you can redistribute it and/or modify      *
  *  it under the terms of the GNU General Public License as published         *
@@ -19,6 +19,9 @@
 #ifndef SYMBOLS_H
 #define SYMBOLS_H
 
+#include <KConfigCore/KConfig>
+#include <KConfigCore/KConfigGroup>
+
 #include <KRunner/AbstractRunner>
 
 class Symbols : public Plasma::AbstractRunner
@@ -34,6 +37,8 @@ public:
 private:
     QMap<QString, QString> symbols;
     QMap<QString, QString> unicodeSymbols;
+
+    KConfig localConfig;
     QMap<QString, QVariant> prefs;
     
     void loadConfig();
