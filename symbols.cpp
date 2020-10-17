@@ -84,14 +84,23 @@ void Symbols::loadConfig() {
                  (!prefMap.contains("UseUnicodeDatabase")) 
                  || prefMap.value("UseUnicodeDatabase").compare("true") == 0);
     
-    // AlwaysLoadEnglishUnicode: Default false
-    prefs.insert("AlwaysLoadEnglishUnicode",
-                 (prefMap.contains("AlwaysLoadEnglishUnicode"))
-                 && prefMap.value("AlwaysLoadEnglishUnicode").compare("true") == 0);
+    // UseLocalizedUnicodeDescriptions: Default true
+    prefs.insert("UseLocalizedUnicodeDescriptions",
+                 (!prefMap.contains("UseLocalizedUnicodeDescriptions"))
+                 || prefMap.value("UseLocalizedUnicodeDescriptions").compare("true") == 0);
+    
+    // UseInlineDefinitionEditing: Default false
+    prefs.insert("UseInlineDefinitionEditing",
+                 (prefMap.contains("UseInlineDefinitionEditing"))
+                 && prefMap.value("UseInlineDefinitionEditing").compare("true") == 0);
     
     // Unicode symbols (only if not disabled by preferences)
-    if (prefs.value("UseUnicodeDatabase").toBool()) {
-
+    if (!prefs.value("UseUnicodeDatabase").toBool()) return; 
+        
+    QString unicodeConfigBase = "/usr/share/config/krunner-symbols-unicode/unicode_";
+    bool useLocalized = false;
+    if (prefs.value("UseLocalizedUnicodeDescriptions").toBool()) {
+        
         // Get locale (only the part left of the underscore)
         QString locale = globalConfig.locale();
         int idxOfUnderscore = locale.indexOf("_");
@@ -100,17 +109,19 @@ void Symbols::loadConfig() {
         }
 
         // Try to get Unicode symbols file for that locale
-        QString unicodeConfigBase = "/usr/share/config/krunner-symbols-unicode/unicode_";
         KConfig unicodeConfig(unicodeConfigBase + locale);
         KConfigGroup unicodeGroup(&unicodeConfig, "Unicode");
-
-        if (!unicodeGroup.exists() || prefs.value("AlwaysLoadEnglishUnicode").toBool()) {
-            // Does not exist: Use default (english) Unicode symbols file
-            KConfig defaultUnicodeConfig(unicodeConfigBase + "en");
-            unicodeGroup = KConfigGroup(&defaultUnicodeConfig, "Unicode");
-            if (!unicodeGroup.exists()) return;
+        if (unicodeGroup.exists()) {
+            useLocalized = true;
+            unicodeSymbols = unicodeGroup.entryMap();
         }
+    }
 
+    if (!useLocalized) {
+        // Use default (english) Unicode symbols file
+        KConfig defaultUnicodeConfig(unicodeConfigBase + "en");
+        KConfigGroup unicodeGroup = KConfigGroup(&defaultUnicodeConfig, "Unicode");
+        if (!unicodeGroup.exists()) return;
         unicodeSymbols = unicodeGroup.entryMap();
     }
 }
@@ -118,10 +129,13 @@ void Symbols::loadConfig() {
 void Symbols::match(Plasma::RunnerContext &context) {
     if (!context.isValid()) return;
 
-    if (context.query().startsWith("sym:", Qt::CaseInsensitive)) {
-
+    if (prefs.value("UseInlineDefinitionEditing").toBool() 
+        && context.query().startsWith("sym:", Qt::CaseInsensitive)) {
+        
+        // Add or modify a definition
         QRegExp rx("\\bsym:def (.*)=(.*)\\b");
         if (rx.indexIn(context.query()) >= 0) {
+            // (Re)define a symbol
             QString key = rx.cap(1).trimmed();
             QString val = rx.cap(2).trimmed();
             Plasma::QueryMatch match;
@@ -131,9 +145,15 @@ void Symbols::match(Plasma::RunnerContext &context) {
             match.setData(data);
             context.addMatch(match);                        
         } else {
+            // Remove a definition
             rx = QRegExp("\\bsym:rm (.*)\\b");
             if (rx.indexIn(context.query()) >= 0 && context.query().indexOf("=") < 0) {
                 QString key = rx.cap(1).trimmed();
+                
+                // Check if the definition exists
+                auto localDefs = KConfigGroup(&localConfig, "Definitions");
+                if (!localDefs.hasKey(key)) return;
+                
                 Plasma::QueryMatch match;
                 QStringList data;
                 match = getMatchObject("Remove symbol", "[" + key + "]", 1.0f);
@@ -142,14 +162,15 @@ void Symbols::match(Plasma::RunnerContext &context) {
                 context.addMatch(match);
             }
         }
-    }
 
-    // Match against symbols from (global & local) configuration
-    matchSymbols(context);
+    } else {
+        // Match against symbols from (global & local) configuration
+        matchSymbols(context);
 
-    if (prefs.value("UseUnicodeDatabase").toBool()) {
-        // Also look for fitting unicode symbols (only if not disabled by preferences)
-        matchUnicode(context);
+        if (prefs.value("UseUnicodeDatabase").toBool()) {
+            // Also look for fitting unicode symbols (only if not disabled by preferences)
+            matchUnicode(context);
+        }
     }
 }
 
@@ -382,6 +403,7 @@ void Symbols::run(const Plasma::RunnerContext &context, const Plasma::QueryMatch
 #pragma GCC diagnostic ignored "-Wunused-result"
 
     if (match.data().canConvert<QStringList>() && match.data().toStringList().size() >= 2) {
+        // Inline addition, modification, or removal of a definition
         QStringList list = match.data().toStringList();
         QString mode = list[0];
         QString key = list[1];

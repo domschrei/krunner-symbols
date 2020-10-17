@@ -9,8 +9,12 @@
 
 [Preferences]
 
+# Whether to load and search definitions from a local Unicode database file
 UseUnicodeDatabase=true
-
+# Whether to choose the Unicode database to use according to the user locale, if possible
+UseLocalizedUnicodeDescriptions=true
+# Whether definitions can be added, modified, and removed inline via "sym:(def|rm) key=value".
+UseInlineDefinitionEditing=false
 
 [Definitions]
 
