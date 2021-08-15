@@ -34,17 +34,10 @@ Symbols::Symbols(QObject *parent, const QVariantList &args)
     : Plasma::AbstractRunner(parent, args), 
     localConfig("krunner-symbolsrc", KConfig::SimpleConfig)
 {
-    Q_UNUSED(args);
-    
     // General runner configuration
     setObjectName(QLatin1String("Symbols"));
-    setHasRunOptions(true);
-    setIgnoredTypes(Plasma::RunnerContext::Directory |
-                    Plasma::RunnerContext::File |
-                    Plasma::RunnerContext::NetworkLocation);
-    setSpeed(AbstractRunner::NormalSpeed);
     setPriority(HighestPriority);
-    setDefaultSyntax(
+    addSyntax(
         Plasma::RunnerSyntax(
             QString::fromLatin1(":q:"),
             i18n("Looks for a unicode symbol described by :q: and, if present, displays it. Then pressing ENTER copies the symbol to the clipboard.")
