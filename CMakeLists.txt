@@ -5,7 +5,8 @@ set(CMAKE_PROJECT_VERSION  "1.1.0")
 set(CMAKE_PROJECT_AUTHOR "Dominik P. Schreiber")
 set(CMAKE_PROJECT_HOMEPAGE_URL "github.com/domschrei/krunner-symbols")
 
-find_package(ECM 5.12.0 REQUIRED NO_MODULE)
+set(KF5_MIN_VERSION 5.72.0)
+find_package(ECM ${KF5_MIN_VERSION} REQUIRED NO_MODULE)
 set (CMAKE_MODULE_PATH
      ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR} ${CMAKE_MODULE_PATH}
 )
@@ -46,7 +47,6 @@ set(krunner_symbols_SRCS symbols.cpp)
 add_library(krunner_symbols MODULE ${krunner_symbols_SRCS})
 target_link_libraries(krunner_symbols KF5::Runner Qt5::Widgets KF5::I18n KF5::Service KF5::Plasma)
 
-install(TARGETS krunner_symbols DESTINATION ${LOCATION_PLUGIN})
-install(FILES plasma-runner-symbols.desktop DESTINATION ${LOCATION_DESKTOP})
+install(TARGETS krunner_symbols DESTINATION ${LOCATION_PLUGIN}/kf5/krunner)
 install(FILES krunner-symbolsrc DESTINATION ${LOCATION_CONFIG})
 install(DIRECTORY krunner-symbols-unicode DESTINATION ${LOCATION_CONFIG})

@@ -492,6 +492,6 @@ void Symbols::expandMultiDefinitions() {
     symbols.unite(splittedSymbols);
 }
 
-K_EXPORT_PLASMA_RUNNER(symbols, Symbols)
+K_EXPORT_PLASMA_RUNNER_WITH_JSON(Symbols, "symbols.json")
 
 #include "symbols.moc"
