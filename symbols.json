@@ -1,0 +1,17 @@
+{
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "dev@dominikschreiber.de",
+                "Name": "Dominik Schreiber"
+            }
+        ],
+        "Description": "Retrieves the symbol or the text you are describing (e.g. \"lambda\", \"loremipsum\")",
+        "EnabledByDefault": true,
+        "Icon": "preferences-desktop-font",
+        "Id": "symbols",
+        "License": "GPL",
+        "Name": "Symbols",
+        "Version": "1.1.0"
+    }
+}

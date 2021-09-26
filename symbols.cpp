@@ -30,21 +30,14 @@
 
 using namespace std;
 
-Symbols::Symbols(QObject *parent, const QVariantList &args)
-    : Plasma::AbstractRunner(parent, args), 
+Symbols::Symbols(QObject *parent, const KPluginMetaData& data, const QVariantList &args)
+    : Plasma::AbstractRunner(parent, data, args), 
     localConfig("krunner-symbolsrc", KConfig::SimpleConfig)
 {
-    Q_UNUSED(args);
-    
     // General runner configuration
     setObjectName(QLatin1String("Symbols"));
-    setHasRunOptions(true);
-    setIgnoredTypes(Plasma::RunnerContext::Directory |
-                    Plasma::RunnerContext::File |
-                    Plasma::RunnerContext::NetworkLocation);
-    setSpeed(AbstractRunner::NormalSpeed);
     setPriority(HighestPriority);
-    setDefaultSyntax(
+    addSyntax(
         Plasma::RunnerSyntax(
             QString::fromLatin1(":q:"),
             i18n("Looks for a unicode symbol described by :q: and, if present, displays it. Then pressing ENTER copies the symbol to the clipboard.")
@@ -333,7 +326,7 @@ float Symbols::getRelevance(const std::vector<QString>& enteredExact,
         bool someMatch = false;
 
         // Iterate over all tokens of the found symbol description
-        QListIterator<QString> unicodeTokens(found.split(' ', QString::SkipEmptyParts));
+        QListIterator<QString> unicodeTokens(found.split(QLatin1Char(' ')));
         while (unicodeTokens.hasNext()) {
             const QString& foundToken = unicodeTokens.next();
 
@@ -495,10 +488,12 @@ void Symbols::expandMultiDefinitions() {
         symbols.remove(strIt.next());
     }
     
-    // Merge the ney symbols into the map with all symbols
-    symbols.unite(splittedSymbols);
+    // Merge the ney symbols into the map with all symbols (overwrite if needed)
+    for (auto it = splittedSymbols.constBegin(); it != splittedSymbols.constEnd(); ++it) {
+        symbols[it.key()] = it.value();
+    }
 }
 
-K_EXPORT_PLASMA_RUNNER(symbols, Symbols)
+K_EXPORT_PLASMA_RUNNER_WITH_JSON(Symbols, "symbols.json")
 
 #include "symbols.moc"

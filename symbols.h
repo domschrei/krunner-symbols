@@ -29,7 +29,7 @@ class Symbols : public Plasma::AbstractRunner
     Q_OBJECT
 
 public:
-    Symbols(QObject *parent, const QVariantList &args);
+    Symbols(QObject *parent, const KPluginMetaData& data, const QVariantList &args);
     ~Symbols() override = default;
 
     void match(Plasma::RunnerContext &) override;
