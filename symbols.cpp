@@ -30,8 +30,8 @@
 
 using namespace std;
 
-Symbols::Symbols(QObject *parent, const QVariantList &args)
-    : Plasma::AbstractRunner(parent, args), 
+Symbols::Symbols(QObject *parent, const KPluginMetaData& data, const QVariantList &args)
+    : Plasma::AbstractRunner(parent, data, args), 
     localConfig("krunner-symbolsrc", KConfig::SimpleConfig)
 {
     // General runner configuration
@@ -326,7 +326,7 @@ float Symbols::getRelevance(const std::vector<QString>& enteredExact,
         bool someMatch = false;
 
         // Iterate over all tokens of the found symbol description
-        QListIterator<QString> unicodeTokens(found.split(' ', QString::SkipEmptyParts));
+        QListIterator<QString> unicodeTokens(found.split(QLatin1Char(' ')));
         while (unicodeTokens.hasNext()) {
             const QString& foundToken = unicodeTokens.next();
 
@@ -488,8 +488,10 @@ void Symbols::expandMultiDefinitions() {
         symbols.remove(strIt.next());
     }
     
-    // Merge the ney symbols into the map with all symbols
-    symbols.unite(splittedSymbols);
+    // Merge the ney symbols into the map with all symbols (overwrite if needed)
+    for (auto it = splittedSymbols.constBegin(); it != splittedSymbols.constEnd(); ++it) {
+        symbols[it.key()] = it.value();
+    }
 }
 
 K_EXPORT_PLASMA_RUNNER_WITH_JSON(Symbols, "symbols.json")
