@@ -84,11 +84,15 @@ wholenumbers=ℤ
 integers=ℤ
 rationalnumbers=ℚ
 realnumbers=ℝ
+complexnumbers=ℂ
 emptyset=∅
 
 # Mathematical Operators
 plusminus=±
+times=×
+dotproduct=⋅
 division=÷
+divisionslash=∕
 squareroot=√
 sum=∑
 product=∏
@@ -97,8 +101,8 @@ partialdifferential=∂
 
 # Mathematical Relations
 muchlessthan=≪
-lowerequals=≤
-muchgreaterthan=≫
+lessequal=≤
+lessequals=≤
 greaterequal=≥
 greaterequals=≥
 almostequal=≈
@@ -115,6 +119,9 @@ notin=∉
 subsetequals=⊆
 subset=⊂
 strictsubset=⊊
+supersetequals=⊇
+superset=⊃
+strictsuperset=⊋
 intersection=∩
 union=∪
 
@@ -203,7 +210,7 @@ pound=£
 euro=€
 yen=¥
 cent=¢
-micro=µ
+micro=μ
 
 # Dank Memes
 fliptable=(╯°□°）╯︵ ┻━┻
