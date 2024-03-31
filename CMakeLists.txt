@@ -11,7 +11,7 @@ set (CMAKE_MODULE_PATH
      ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR} ${CMAKE_MODULE_PATH}
 )
 
-find_package (Qt6 ${QT_MIN_VERSION} REQUIRED CONFIG COMPONENTS Widgets Core Quick)
+find_package (Qt6 ${QT_MIN_VERSION} REQUIRED CONFIG COMPONENTS Widgets Core Quick Core5Compat)
 find_package (KF6 ${KF6_MIN_VERSION} REQUIRED COMPONENTS I18n Service Runner TextWidgets)
 find_package (PlasmaQuick  ${KF6_MIN_VERSION} REQUIRED )
 
@@ -46,7 +46,7 @@ include(KDECompilerSettings NO_POLICY_SCOPE)
 
 set(krunner_symbols_SRCS symbols.cpp)
 add_library(krunner_symbols MODULE ${krunner_symbols_SRCS})
-target_link_libraries(krunner_symbols KF6::Runner Qt6::Widgets KF6::I18n KF6::Service Plasma::Plasma)
+target_link_libraries(krunner_symbols KF6::Runner Qt6::Widgets KF6::I18n KF6::Service Plasma::Plasma Qt6::Core5Compat)
 
 install(TARGETS krunner_symbols DESTINATION ${LOCATION_PLUGIN}/kf6/krunner)
 install(FILES krunner-symbolsrc DESTINATION ${LOCATION_CONFIG})
