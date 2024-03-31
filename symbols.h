@@ -19,8 +19,8 @@
 #ifndef SYMBOLS_H
 #define SYMBOLS_H
 
-#include <KConfigCore/KConfig>
-#include <KConfigCore/KConfigGroup>
+#include <KConfig>
+#include <KConfigGroup>
 
 #include <KRunner/AbstractRunner>
 
