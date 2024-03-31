@@ -5,14 +5,15 @@ set(CMAKE_PROJECT_VERSION  "1.1.0")
 set(CMAKE_PROJECT_AUTHOR "Dominik P. Schreiber")
 set(CMAKE_PROJECT_HOMEPAGE_URL "github.com/domschrei/krunner-symbols")
 
-set(KF5_MIN_VERSION 5.72.0)
-find_package(ECM ${KF5_MIN_VERSION} REQUIRED NO_MODULE)
+set(KF6_MIN_VERSION 6.0.0)
+find_package(ECM ${KF6_MIN_VERSION} REQUIRED NO_MODULE)
 set (CMAKE_MODULE_PATH
      ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR} ${CMAKE_MODULE_PATH}
 )
 
-find_package (Qt5 ${QT_MIN_VERSION} REQUIRED CONFIG COMPONENTS Widgets Core Quick)
-find_package (KF5 ${KF5_MIN_VERSION} REQUIRED COMPONENTS I18n Service Runner TextWidgets PlasmaQuick)
+find_package (Qt6 ${QT_MIN_VERSION} REQUIRED CONFIG COMPONENTS Widgets Core Quick)
+find_package (KF6 ${KF6_MIN_VERSION} REQUIRED COMPONENTS I18n Service Runner TextWidgets)
+find_package (PlasmaQuick  ${KF6_MIN_VERSION} REQUIRED )
 
 set(CPACK_PACKAGE_NAME "krunner-symbols")
 set(CPACK_PACKAGE_VENDOR "dominikschreiber.de")
@@ -45,8 +46,8 @@ include(KDECompilerSettings NO_POLICY_SCOPE)
 
 set(krunner_symbols_SRCS symbols.cpp)
 add_library(krunner_symbols MODULE ${krunner_symbols_SRCS})
-target_link_libraries(krunner_symbols KF5::Runner Qt5::Widgets KF5::I18n KF5::Service KF5::Plasma)
+target_link_libraries(krunner_symbols KF6::Runner Qt6::Widgets KF6::I18n KF6::Service Plasma::Plasma)
 
-install(TARGETS krunner_symbols DESTINATION ${LOCATION_PLUGIN}/kf5/krunner)
+install(TARGETS krunner_symbols DESTINATION ${LOCATION_PLUGIN}/kf6/krunner)
 install(FILES krunner-symbolsrc DESTINATION ${LOCATION_CONFIG})
 install(DIRECTORY krunner-symbols-unicode DESTINATION ${LOCATION_CONFIG})
