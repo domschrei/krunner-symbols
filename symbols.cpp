@@ -31,14 +31,14 @@
 using namespace std;
 
 Symbols::Symbols(QObject *parent, const KPluginMetaData& data, const QVariantList &args)
-    : Plasma::AbstractRunner(parent, data, args), 
+    : KRunner::AbstractRunner(parent, data, args), 
     localConfig("krunner-symbolsrc", KConfig::SimpleConfig)
 {
     // General runner configuration
     setObjectName(QLatin1String("Symbols"));
     setPriority(HighestPriority);
     addSyntax(
-        Plasma::RunnerSyntax(
+        KRunner::RunnerSyntax(
             QString::fromLatin1(":q:"),
             i18n("Looks for a unicode symbol described by :q: and, if present, displays it. Then pressing ENTER copies the symbol to the clipboard.")
         )
@@ -119,7 +119,7 @@ void Symbols::loadConfig() {
     }
 }
 
-void Symbols::match(Plasma::RunnerContext &context) {
+void Symbols::match(KRunner::RunnerContext &context) {
     if (!context.isValid()) return;
 
     if (prefs.value("UseInlineDefinitionEditing").toBool() 
@@ -131,7 +131,7 @@ void Symbols::match(Plasma::RunnerContext &context) {
             // (Re)define a symbol
             QString key = rx.cap(1).trimmed();
             QString val = rx.cap(2).trimmed();
-            Plasma::QueryMatch match;
+            KRunner::QueryMatch match;
             QStringList data;
             match = getMatchObject("Define symbol", "[" + key + "=" + val + "]", 1.0f);
             data << "def" << key << val;
@@ -147,7 +147,7 @@ void Symbols::match(Plasma::RunnerContext &context) {
                 auto localDefs = KConfigGroup(&localConfig, "Definitions");
                 if (!localDefs.hasKey(key)) return;
                 
-                Plasma::QueryMatch match;
+                KRunner::QueryMatch match;
                 QStringList data;
                 match = getMatchObject("Remove symbol", "[" + key + "]", 1.0f);
                 data << "rm" << key;
@@ -167,7 +167,7 @@ void Symbols::match(Plasma::RunnerContext &context) {
     }
 }
 
-void Symbols::matchSymbols(Plasma::RunnerContext &context) {
+void Symbols::matchSymbols(KRunner::RunnerContext &context) {
 
     const QString enteredKey = context.query();
 
@@ -178,7 +178,7 @@ void Symbols::matchSymbols(Plasma::RunnerContext &context) {
     std::vector<QString> exactEnteredTokens = pair.first;
     std::vector<QString> inexactEnteredTokens = pair.second;
 
-    QList<Plasma::QueryMatch> matches;    
+    QList<KRunner::QueryMatch> matches;    
     
     // Search symbols from database
     QMapIterator<QString, QString> it(symbols);
@@ -191,7 +191,7 @@ void Symbols::matchSymbols(Plasma::RunnerContext &context) {
         if (relevance > 0) {
 
             // We have a match
-            Plasma::QueryMatch match = getMatchObject(it.value(), "[" + foundKey + "]", relevance);
+            KRunner::QueryMatch match = getMatchObject(it.value(), "[" + foundKey + "]", relevance);
         
             // Check if the result is a command ("open:" or "exec:")
             if (it.value().startsWith("open:")) {
@@ -212,7 +212,7 @@ void Symbols::matchSymbols(Plasma::RunnerContext &context) {
     context.addMatches(matches);
 }
 
-void Symbols::matchUnicode(Plasma::RunnerContext &context) {
+void Symbols::matchUnicode(KRunner::RunnerContext &context) {
     
     const QString enteredKey = context.query();
     
@@ -228,7 +228,7 @@ void Symbols::matchUnicode(Plasma::RunnerContext &context) {
     std::vector<QString> exactEnteredTokens = pair.first;
     std::vector<QString> inexactEnteredTokens = pair.second;
 
-    QList<Plasma::QueryMatch> matches;
+    QList<KRunner::QueryMatch> matches;
     
     // Iterate over all available unicode symbols
     QMapIterator<QString, QString> it(unicodeSymbols);
@@ -263,7 +263,7 @@ void Symbols::matchUnicode(Plasma::RunnerContext &context) {
                 }
                 
                 // create match object
-                Plasma::QueryMatch match = getMatchObject(result, "[" + foundKey + "]", relevance);
+                KRunner::QueryMatch match = getMatchObject(result, "[" + foundKey + "]", relevance);
                 match.setData("symbol");
                 matches.append(match);  
             }
@@ -370,12 +370,12 @@ float Symbols::getRelevance(const std::vector<QString>& enteredExact,
     return relevance * inputLength / found.length();
 }
 
-Plasma::QueryMatch Symbols::getMatchObject(const QString& text, const QString& subtext, float relevance) {
+KRunner::QueryMatch Symbols::getMatchObject(const QString& text, const QString& subtext, float relevance) {
 
-    Plasma::QueryMatch match(this);
+    KRunner::QueryMatch match(this);
 
     // decide whether this is an exact match or just a possible match
-    match.setType(relevance >= 0.999f ? Plasma::QueryMatch::ExactMatch : Plasma::QueryMatch::PossibleMatch);
+    match.setType(relevance >= 0.999f ? KRunner::QueryMatch::ExactMatch : KRunner::QueryMatch::PossibleMatch);
     
     match.setText(text);
     if (subtext.length() > 0) match.setSubtext(subtext);
@@ -390,7 +390,7 @@ Plasma::QueryMatch Symbols::getMatchObject(const QString& text, const QString& s
  * Either some string is copied to the clipboard, a file/path/URL is opened, 
  * or a command is executed.
  */
-void Symbols::run(const Plasma::RunnerContext &context, const Plasma::QueryMatch &match) {
+void Symbols::run(const KRunner::RunnerContext &context, const KRunner::QueryMatch &match) {
     Q_UNUSED(context);
 // Otherwise compiler shows warning that the results of the system() call is ignored
 #pragma GCC diagnostic ignored "-Wunused-result"
