@@ -29,7 +29,7 @@ class Symbols : public KRunner::AbstractRunner
     Q_OBJECT
 
 public:
-    Symbols(QObject *parent, const KPluginMetaData& data, const QVariantList &args);
+    Symbols(QObject *parent, const KPluginMetaData& data);
     ~Symbols() override = default;
 
     void match(KRunner::RunnerContext &) override;

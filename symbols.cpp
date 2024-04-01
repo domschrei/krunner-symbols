@@ -30,8 +30,8 @@
 
 using namespace std;
 
-Symbols::Symbols(QObject *parent, const KPluginMetaData& data, const QVariantList &args)
-    : KRunner::AbstractRunner(parent, data, args), 
+Symbols::Symbols(QObject *parent, const KPluginMetaData& data)
+    : KRunner::AbstractRunner(parent, data),
     localConfig("krunner-symbolsrc", KConfig::SimpleConfig)
 {
     // General runner configuration
