@@ -376,7 +376,8 @@ KRunner::QueryMatch Symbols::getMatchObject(const QString& text, const QString& 
     KRunner::QueryMatch match(this);
 
     // decide whether this is an exact match or just a possible match
-    match.setType(relevance >= 0.999f ? KRunner::QueryMatch::ExactMatch : KRunner::QueryMatch::PossibleMatch);
+    //TODO: port
+    // match.setType(relevance >= 0.999f ? KRunner::QueryMatch::ExactMatch : KRunner::QueryMatch::PossibleMatch);
     
     match.setText(text);
     if (subtext.length() > 0) match.setSubtext(subtext);
