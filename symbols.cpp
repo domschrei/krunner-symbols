@@ -36,7 +36,7 @@ Symbols::Symbols(QObject *parent, const KPluginMetaData& data)
 {
     // General runner configuration
     setObjectName(QLatin1String("Symbols"));
-    setPriority(HighestPriority);
+    // setPriority(HighestPriority); //TODO: port
     addSyntax(
         KRunner::RunnerSyntax(
             QString::fromLatin1(":q:"),
