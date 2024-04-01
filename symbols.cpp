@@ -496,6 +496,6 @@ void Symbols::expandMultiDefinitions() {
     }
 }
 
-K_EXPORT_PLASMA_RUNNER_WITH_JSON(Symbols, "symbols.json")
+K_PLUGIN_CLASS_WITH_JSON(Symbols, "symbols.json")
 
 #include "symbols.moc"
