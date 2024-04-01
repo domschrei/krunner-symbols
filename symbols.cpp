@@ -25,6 +25,7 @@
 #include <QRegExp>
 #include <QTextCodec>
 #include <QLocale>
+#include <QIcon>
 
 #include "symbols.h"
 
