@@ -4,7 +4,6 @@ set -e
 
 # Get correct distro-dependent installation directories 
 loc_plugin=$(qtpaths --plugin-dir)
-loc_desktop=$(kf5-config --path services|awk -F ':' '{print $NF}')
 loc_config=$(qtpaths --install-prefix)/share/config
 
 # Fetch and unpack packaged files
@@ -22,7 +21,6 @@ version=$(jq -r '.KPlugin.Version' symbols.json)
 # Install files
 echo "Installing plugin files into system directories ..."
 sudo cp krunner_symbols.so "$loc_plugin"/
-sudo cp plasma-runner-symbols.desktop "$loc_desktop"/
 sudo mkdir -p "$loc_config"
 sudo cp krunner-symbolsrc krunner-symbols-full-unicode-index "$loc_config/"
 

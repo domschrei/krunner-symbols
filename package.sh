@@ -22,7 +22,7 @@ if [ "$1" == "generic" ]; then
     # Build generic "flat" package to be installed via install.sh
 
     # Build the plugin in the build/ directory without any folder hierarchy
-    cmake .. -DLOCATION_PLUGIN=. -DLOCATION_DESKTOP=. -DLOCATION_CONFIG=. \
+    cmake .. -DLOCATION_PLUGIN=. -DLOCATION_CONFIG=. \
     -DCMAKE_BUILD_TYPE=Release
     make -j$(nproc)
     
@@ -46,13 +46,11 @@ else
     # Get correct installation directories: relative paths without leading prefix.
     prefix=$(qtpaths --install-prefix)
     loc_plugin=$(qtpaths --plugin-dir|sed 's.^'"$prefix"'/..')
-    loc_desktop=$(kf5-config --path services|awk -F ':' '{print $NF}'|sed 's.^'"$prefix"'/..')
     loc_config=share/config
 
     # Build the plugin
     cmake .. -DCPACK_DEBIAN=true -DCMAKE_INSTALL_PREFIX=$prefix \
     -DLOCATION_PLUGIN=$loc_plugin \
-    -DLOCATION_DESKTOP=$loc_desktop \
     -DLOCATION_CONFIG=$loc_config \
     -DCMAKE_BUILD_TYPE=Release
     make -j$(nproc)

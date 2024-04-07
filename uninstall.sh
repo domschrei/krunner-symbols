@@ -4,12 +4,10 @@ set -e
 
 # Get correct distro-dependent installation directories 
 loc_plugin=$(qtpaths --plugin-dir)
-loc_desktop=$(kf5-config --path services|awk -F ':' '{print $NF}')
 loc_config=$(qtpaths --install-prefix)/share/config
 
 # Remove installed files
 sudo rm "$loc_plugin/krunner_symbols.so"
-sudo rm "$loc_desktop/plasma-runner-symbols.desktop"
 sudo rm "$loc_config/krunner-symbolsrc"
 sudo rm -rf "$loc_config/krunner-symbols-unicode"
 
