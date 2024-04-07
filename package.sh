@@ -13,7 +13,7 @@ mkdir build 2> /dev/null || rm -rf build/*
 cd build
 
 # Fetch current version
-version=$(grep X-KDE-PluginInfo-Version ../plasma-runner-symbols.desktop|grep -oE "[0-9]+\..*\..*"|tr '.' ' ')
+version=$(jq -r '.KPlugin.Version' ../symbols.json|tr '.' ' ')
 vmajor=$(echo $version|awk '{print $1}')
 vminor=$(echo $version|awk '{print $2}')
 vpatch=$(echo $version|awk '{print $3}')

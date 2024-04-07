@@ -17,7 +17,7 @@ tar xzvf "$pkg" -C build --strip-components=1
 cd build
 
 # Fetch current version
-version=$(grep X-KDE-PluginInfo-Version plasma-runner-symbols.desktop|grep -oE '[0-9]+\..*\..*')
+version=$(jq -r '.KPlugin.Version' symbols.json)
 
 # Install files
 echo "Installing plugin files into system directories ..."
