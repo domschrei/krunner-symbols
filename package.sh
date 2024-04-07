@@ -44,8 +44,8 @@ else
     # Build DEB package
 
     # Get correct installation directories: relative paths without leading prefix.
-    prefix=$(kf5-config --prefix) 
-    loc_plugin=$(kf5-config --qt-plugins|sed 's.^'"$prefix"'/..')
+    prefix=$(qtpaths --install-prefix)
+    loc_plugin=$(qtpaths --plugin-dir|sed 's.^'"$prefix"'/..')
     loc_desktop=$(kf5-config --path services|awk -F ':' '{print $NF}'|sed 's.^'"$prefix"'/..')
     loc_config=share/config
 

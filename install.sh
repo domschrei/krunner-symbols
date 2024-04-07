@@ -3,9 +3,9 @@
 set -e
 
 # Get correct distro-dependent installation directories 
-loc_plugin=$(kf5-config --qt-plugins)
+loc_plugin=$(qtpaths --plugin-dir)
 loc_desktop=$(kf5-config --path services|awk -F ':' '{print $NF}')
-loc_config=$(kf5-config --prefix)/share/config
+loc_config=$(qtpaths --install-prefix)/share/config
 
 # Fetch and unpack packaged files
 if [ ! -f krunner-symbols-*-Linux.tar.gz ]; then

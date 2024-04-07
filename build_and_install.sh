@@ -8,8 +8,8 @@ mkdir -p build
 cd build
 
 # Get correct installation directories
-prefix=$(kf5-config --prefix) 
-loc_plugin=$(kf5-config --qt-plugins|sed 's.^'"$prefix"'/..')
+prefix=$(qtpaths --install-prefix)
+loc_plugin=$(qtpaths --plugin-dir|sed 's.^'"$prefix"'/..')
 loc_config=share/config
 
 # Build the plugin
