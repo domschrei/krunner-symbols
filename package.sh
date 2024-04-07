@@ -44,8 +44,8 @@ else
     # Build DEB package
 
     # Get correct installation directories: relative paths without leading prefix.
-    prefix=$(qtpaths --install-prefix)
-    loc_plugin=$(qtpaths --plugin-dir|sed 's.^'"$prefix"'/..')
+    prefix=$(qtdiag6 | grep PrefixPath | tr -d ' ' | cut -d ':' -f 2)
+    loc_plugin=$(qtdiag6 | grep PluginsPath | tr -d ' ' | cut -d ':' -f 2 |sed 's.^'"$prefix"'/..')
     loc_config=share/config
 
     # Build the plugin
