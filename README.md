@@ -57,7 +57,7 @@ This executes the plugin's install script inside the `krunner-symbols` directory
 **Arch Linux**
 
 `sudo pacman -S krunner qt6-base ki18n qt6-5compat qt6-declarative ktextwidgets libplasma`
-`sudo pacman -S cmake extra-cmake-modules qt5-tools jq #these can be uninstalled after building`
+`sudo pacman -S cmake extra-cmake-modules qt6-tools jq #these can be uninstalled after building`
 
 _Note that there is a `plasma5-runners-symbols` [package from AUR](https://aur.archlinux.org/packages/plasma5-runners-symbols/ "link to AUR package"), but it is unfortunately not kept up to date._
 
