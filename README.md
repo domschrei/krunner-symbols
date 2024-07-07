@@ -1,6 +1,11 @@
 
 # krunner-symbols
 
+<hr/>
+
+**Note:** This is the Plasma 5 version of the plugin. You can find a Plasma 6 port [here](https://github.com/domschrei/krunner-symbols/tree/plasma6), which will replace this version when Plasma 6 becomes more widespread across distributions.
+
+<hr/>
 
 A little krunner plugin (Plasma 5) to retrieve unicode symbols, or any other string, based on a corresponding keyword.
 
