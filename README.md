@@ -7,7 +7,7 @@
 
 <hr/>
 
-A little krunner plugin (Plasma 5) to retrieve unicode symbols, or any other string, based on a corresponding keyword.
+A little krunner plugin (Plasma 6) to retrieve unicode symbols, or any other string, based on a corresponding keyword.
 
 ![Demonstration "lambda"](https://raw.githubusercontent.com/domschrei/krunner-symbols/master/img/demonstration1.png)
 
@@ -46,8 +46,6 @@ This executes the plugin's install script inside the `krunner-symbols` directory
 
 `sudo pacman -S krunner qt6-base ki18n qt6-5compat qt6-declarative ktextwidgets libplasma`
 `sudo pacman -S cmake extra-cmake-modules qt6-tools jq #these can be uninstalled after building`
-
-_Note that there is a `plasma5-runners-symbols` [package from AUR](https://aur.archlinux.org/packages/plasma5-runners-symbols/ "link to AUR package"), but it is unfortunately not kept up to date._
 
 **Debian / Ubuntu**
 
