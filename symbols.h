@@ -19,21 +19,21 @@
 #ifndef SYMBOLS_H
 #define SYMBOLS_H
 
-#include <KConfigCore/KConfig>
-#include <KConfigCore/KConfigGroup>
+#include <KConfig>
+#include <KConfigGroup>
 
 #include <KRunner/AbstractRunner>
 
-class Symbols : public Plasma::AbstractRunner
+class Symbols : public KRunner::AbstractRunner
 {
     Q_OBJECT
 
 public:
-    Symbols(QObject *parent, const KPluginMetaData& data, const QVariantList &args);
+    Symbols(QObject *parent, const KPluginMetaData& data);
     ~Symbols() override = default;
 
-    void match(Plasma::RunnerContext &) override;
-    void run(const Plasma::RunnerContext &, const Plasma::QueryMatch &) override;
+    void match(KRunner::RunnerContext &) override;
+    void run(const KRunner::RunnerContext &, const KRunner::QueryMatch &) override;
 private:
     QMap<QString, QString> symbols;
     QMap<QString, QString> unicodeSymbols;
@@ -43,14 +43,14 @@ private:
     
     void loadConfig();
 
-    void matchSymbols(Plasma::RunnerContext&);
-    void matchUnicode(Plasma::RunnerContext&);
+    void matchSymbols(KRunner::RunnerContext&);
+    void matchUnicode(KRunner::RunnerContext&);
 
     std::pair<std::vector<QString>, std::vector<QString>> getExactAndInexactTokens(const QString& entered, int& inputLength);
     float getRelevance(const std::vector<QString>& enteredExact,
                        const std::vector<QString>& enteredInexact,
                        int inputLength, const QString& found);
-    Plasma::QueryMatch getMatchObject(const QString& text, const QString& subtext, float relevance);
+    KRunner::QueryMatch getMatchObject(const QString& text, const QString& subtext, float relevance);
     
     // helper methods
     void mergeMapsOverriding(QMap<QString, QString>& overriddenMap, QMap<QString, QString>& overridingMap);
