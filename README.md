@@ -1,6 +1,9 @@
 
 # krunner-symbols
 
+<hr/>
+**Note:** This is a Plasma 6 port of the plugin. You can find the Plasma 5 version [here](https://github.com/domschrei/krunner-symbols/tree/master).
+<hr/>
 
 A little krunner plugin (Plasma 5) to retrieve unicode symbols, or any other string, based on a corresponding keyword.
 
@@ -21,28 +24,11 @@ The definitions for all these use cases can be freely configured (see *Configura
 
 ## Installation
 
-There are two ways to install the plugin in packaged form (i.e., without building it yourself).
-
-### Debian-based
-
-Use the latest .deb package:
-
-`wget https://github.com/domschrei/krunner-symbols/releases/download/1.1.0/krunner-symbols-1.1.0.deb && sudo dpkg -i krunner-symbols-1.1.0.deb`
-
-### Generic Linux
-
-Use this script (which fetches the latest release package files):
-
-`curl https://raw.githubusercontent.com/domschrei/krunner-symbols/master/install.sh | bash`
-
-### Uninstallation
-
-For uninstalling the plugin, use `apt` if you installed via .deb:
-
-`sudo apt remove krunner-symbols`
-
-and use the script `uninstall.sh` if you installed via the generic script.
-
+There are scripts to install the plugin in packaged form (i.e., without building it yourself) but these are **not yet functional** for Plasma 6.
+```
+bash install.sh
+bash uninstall.sh
+```
 
 ## Building
 
@@ -63,15 +49,17 @@ _Note that there is a `plasma5-runners-symbols` [package from AUR](https://aur.a
 
 **Debian / Ubuntu**
 
-`sudo apt install cmake extra-cmake-modules build-essential libkf5runner-dev libkf5textwidgets-dev qtdeclarative5-dev gettext`
+Debian support will be added ASAP after Plasma 6 enters Debian Testing.
 
 **openSUSE**
 
-`sudo zypper install cmake extra-cmake-modules libQt5Widgets5 libQt5Core5 libqt5-qtlocation-devel ki18n-devel ktextwidgets-devel kservice-devel krunner-devel gettext-tools`
+Start with these dependencies (see [this post](https://github.com/domschrei/krunner-symbols/pull/26#issuecomment-2142624565)):
+
+`sudo zypper install kf6-krunner-devel kf5-kservice-devel kf6-ktextwidgets-devel libKF5Plasma5 libplasma6-desktoptheme libplasma6-devel plasma-framework plasma6-workspace-libs`
 
 **Fedora**
 
-`sudo dnf install cmake extra-cmake-modules kf5-ki18n-devel kf5-kservice-devel kf5-krunner-devel kf5-ktextwidgets-devel gettext qt5-qtdeclarative-devel`
+`sudo dnf install cmake extra-cmake-modules kf6-ki18n-devel kf6-kservice-devel kf6-krunner-devel kf6-ktextwidgets-devel gettext qt6-qtdeclarative-devel qt6-qt5compat-devel libplasma-devel`
 
 
 ## Usage
