@@ -3,9 +3,8 @@
 set -e
 
 # Get correct distro-dependent installation directories 
-loc_plugin=$(kf5-config --qt-plugins)
-loc_desktop=$(kf5-config --path services|awk -F ':' '{print $NF}')
-loc_config=$(kf5-config --prefix)/share/config
+loc_plugin=$(qtdiag6 | grep PluginsPath | tr -d ' ' | cut -d ':' -f 2 )
+loc_config=$(qtdiag6 | grep PrefixPath | tr -d ' ' | cut -d ':' -f 2)/share/config
 
 # Fetch and unpack packaged files
 if [ ! -f krunner-symbols-*-Linux.tar.gz ]; then
@@ -17,12 +16,11 @@ tar xzvf "$pkg" -C build --strip-components=1
 cd build
 
 # Fetch current version
-version=$(grep X-KDE-PluginInfo-Version plasma-runner-symbols.desktop|grep -oE '[0-9]+\..*\..*')
+version=$(jq -r '.KPlugin.Version' symbols.json)
 
 # Install files
 echo "Installing plugin files into system directories ..."
 sudo cp krunner_symbols.so "$loc_plugin"/
-sudo cp plasma-runner-symbols.desktop "$loc_desktop"/
 sudo mkdir -p "$loc_config"
 sudo cp krunner-symbolsrc krunner-symbols-full-unicode-index "$loc_config/"
 
